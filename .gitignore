@@ -4,3 +4,6 @@ ipch/
 *.sdf
 *.opensdf
 *.user
+/.metadata/
+/RemoteSystemsTempFiles/
+
