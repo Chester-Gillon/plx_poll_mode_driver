@@ -20,11 +20,15 @@ typedef struct
     PLX_DEVICE_OBJECT *device;
     /** The index of the PCI BAR to which the UART is mapped */
     U8 bar_index;
+    /** If non-NULL the virtual address which is mapped to the PCI BAR to allow direct access to the UART registers */
+    void *bar_mapping;
 } uart_port_t;
 
 
 /**
  * @brief Write to a UART register
+ * @details If the port has it's BAR mapped into the process virtual address space the mapping is used
+ *          to write to the UART register, otherwise a PlxApi function is used.
  * @param[in] port Which UART to write to
  * @param[in] offset The register offset to write to
  * @param[in] value The register value to write
@@ -34,17 +38,28 @@ static void serial_out (const uart_port_t *const port, const U32 offset, const U
     PLX_STATUS status;
     U8 data = value;
 
-    status = PlxPci_PciBarSpaceWrite (port->device, port->bar_index, offset, &data, 1, BitSize8, FALSE);
-    if (status != ApiSuccess)
+    if (port->bar_mapping != NULL)
     {
-        printf ("PlxPci_PciBarSpaceWrite failed : %d : bar_index=%u offset=%u\n", status, port->bar_index, offset);
-        exit (EXIT_FAILURE);
+        volatile U8 *const port_base = port->bar_mapping;
+
+        port_base[offset] = data;
+    }
+    else
+    {
+        status = PlxPci_PciBarSpaceWrite (port->device, port->bar_index, offset, &data, 1, BitSize8, FALSE);
+        if (status != ApiSuccess)
+        {
+            printf ("PlxPci_PciBarSpaceWrite failed : %d : bar_index=%u offset=%u\n", status, port->bar_index, offset);
+            exit (EXIT_FAILURE);
+        }
     }
 }
 
 
 /**
  * @brief Read from a UART register
+ * @details If the port has it's BAR mapped into the process virtual address space the mapping is used
+ *          to read from the UART register, otherwise a PlxApi function is used.
  * @param[in] port Whuch UART to read from
  * @param[in] offset The register offset to read from
  * @return The register value
@@ -54,11 +69,20 @@ static U8 serial_in (const uart_port_t *const port, const U32 offset)
     PLX_STATUS status;
     U8 data;
 
-    status = PlxPci_PciBarSpaceRead (port->device, port->bar_index, offset, &data, 1, BitSize8, FALSE);
-    if (status != ApiSuccess)
+    if (port->bar_mapping != NULL)
     {
-        printf ("PlxPci_PciBarSpaceRead failed : %d : bar_index=%u offset=%u\n", status, port->bar_index, offset);
-        exit (EXIT_FAILURE);
+        const volatile U8 *const port_base = port->bar_mapping;
+
+        data = port_base[offset];
+    }
+    else
+    {
+        status = PlxPci_PciBarSpaceRead (port->device, port->bar_index, offset, &data, 1, BitSize8, FALSE);
+        if (status != ApiSuccess)
+        {
+            printf ("PlxPci_PciBarSpaceRead failed : %d : bar_index=%u offset=%u\n", status, port->bar_index, offset);
+            exit (EXIT_FAILURE);
+        }
     }
 
     return data;
@@ -69,6 +93,7 @@ static U8 serial_in (const uart_port_t *const port, const U32 offset)
  * @brief Perform an auto-detection sequence, on which should be an OX16C950 UART.
  * @details This is a cutdown sequence from the Linux Kernel 8250_core.c, excluding tests not applicable
  *          to the expected UART.
+ * @param[in] port Which UART to auto-detect
  */
 static void autoconfig (const uart_port_t *const port)
 {
@@ -145,12 +170,17 @@ static void autoconfig (const uart_port_t *const port)
 
 /**
  * @brief Sequence the UART tests, which demonstrate using the PlxApi
- * @param [in] device The open PLX device in which the UARTs are mapped
+ * @param[in] device The open PLX device in which the UARTs are mapped
+ * @param[in] use_bar_mapping Controls how the UART registers are accessed for the tests:
+ *            - When false PlxApi functions are used for each register access, involving user/Kernel space
+ *              transitions.
+ *            - When true the UART registers are mapped into the application virtual address space.
  */
-static void perform_uart_tests (PLX_DEVICE_OBJECT *const device)
+static void perform_uart_tests (PLX_DEVICE_OBJECT *const device, const BOOL use_bar_mapping)
 {
     uart_port_t ports[NUM_UARTS];
     unsigned int port_index;
+    PLX_STATUS status;
 
     /* Initialise ports to access both UARTS on the board */
     memset (ports, 0, sizeof (ports));
@@ -159,9 +189,48 @@ static void perform_uart_tests (PLX_DEVICE_OBJECT *const device)
     ports[1].device = device;
     ports[1].bar_index = 3;
 
+    /* Map the BAR of the ports into virtual address when requested */
+    if (use_bar_mapping)
+    {
+        printf ("Performing tests with UART registers mapped into virtual address space\n");
+        for (port_index = 0; port_index < NUM_UARTS; port_index++)
+        {
+            uart_port_t *const port = &ports[port_index];
+
+            status = PlxPci_PciBarMap (device, port->bar_index, &port->bar_mapping);
+            if (status != ApiSuccess)
+            {
+                printf ("PlxPci_PciBarMap failed : %d : bar_index=%u\n", status, port->bar_index);
+                exit (EXIT_FAILURE);
+            }
+        }
+    }
+    else
+    {
+        printf ("Performing tests using PlxPci_PciBarSpaceWrite() / PlxPci_PciBarSpaceRead() to access UART registers"
+                ", which involves user/Kernel space transitions.\n");
+    }
+
+    /* Perform tests which detect the type of UART */
     for (port_index = 0; port_index < NUM_UARTS; port_index++)
     {
         autoconfig (&ports[port_index]);
+    }
+
+    /* Unmap the BARs of the ports (if were mapped) */
+    for (port_index = 0; port_index < NUM_UARTS; port_index++)
+    {
+        uart_port_t *const port = &ports[port_index];
+
+        if (port->bar_mapping != NULL)
+        {
+            status = PlxPci_PciBarUnmap (device, &port->bar_mapping);
+            if (status != ApiSuccess)
+            {
+                printf ("PlxPci_PciBarUnmap failed : %d : bar_index=%u\n", status, port->bar_index);
+                exit (EXIT_FAILURE);
+            }
+        }
     }
 }
 
@@ -178,6 +247,14 @@ int main (int argc, char *argv[])
     U8 driverVersionMajor;
     U8 driverVersionMinor;
     U8 driverVersionRevision;
+    BOOL use_bar_mapping = FALSE;
+
+    /* Read optional command line argument which specifies if to access UART registers with a BAR mapping.
+     * Default is disabled. */
+    if (argc >= 2)
+    {
+        use_bar_mapping = atoi (argv[1]) != 0;
+    }
 
     /* Get the PlxSdk API version this program is linked against, which doesn't require any communication with an actual device */
     status = PlxPci_ApiVersion (&apiVersionMajor, &apiVersionMinor, &apiVersionRevision);
@@ -228,7 +305,7 @@ int main (int argc, char *argv[])
     }
 
     /* Perform the tests */
-    perform_uart_tests (&device);
+    perform_uart_tests (&device, use_bar_mapping);
 
     /* Close the device */
     status = PlxPci_DeviceClose (&device);
