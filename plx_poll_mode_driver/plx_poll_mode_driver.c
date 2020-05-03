@@ -11,6 +11,9 @@
 /* The number of 16C950 UARTs on the Sealevel COMM+2.LPCIe board (7205e) */
 #define NUM_UARTS 2
 
+/* For a 16C950 */
+#define UART_FIFO_DEPTH 128
+
 
 /* Structure to access one 16C950 UART, as a 8-bit wide device on the local bus of a PEX8311.
  * Each UART is mapped as one bar in memory space. */
@@ -22,8 +25,9 @@ typedef struct
     U8 bar_index;
     /** If non-NULL the virtual address which is mapped to the PCI BAR to allow direct access to the UART registers */
     void *bar_mapping;
-    /** Tracks Additional Control Register */
+    /** Tracks registers which have to be be temporarily changed without affecting operational mode */
     U8 acr;
+    U8 lcr;
 } uart_port_t;
 
 
@@ -145,7 +149,7 @@ static void check_16c950_id (uart_port_t *const port)
         }
         else
         {
-            printf ("Unknown EFR device on bar_index=%u : id1=%x id2=%x id3=%x rec=%x\n",
+            printf ("Unknown EFR device on bar_index=%u : id1=0x%x id2=0x%x id3=0x%x rec=0x%x\n",
                     port->bar_index, id1, id2, id3, rev);
             exit (EXIT_FAILURE);
         }
@@ -155,6 +159,18 @@ static void check_16c950_id (uart_port_t *const port)
         printf ("Unknown EFR trying to read ID on bar_index %u\n", port->bar_index);
         exit (EXIT_FAILURE);
     }
+}
+
+
+/*
+ * FIFO support.
+ */
+static void serial8250_clear_fifos (uart_port_t *const port)
+{
+    serial_out (port, UART_FCR, UART_FCR_ENABLE_FIFO);
+    serial_out (port, UART_FCR, UART_FCR_ENABLE_FIFO |
+                UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT);
+    serial_out (port, UART_FCR, 0);
 }
 
 
@@ -234,6 +250,99 @@ static void autoconfig (uart_port_t *const port)
         check_16c950_id (port);
         break;
     }
+
+    serial_out (port, UART_LCR, save_lcr);
+
+    /*
+     * Reset the UART.
+     */
+    serial_out (port, UART_MCR, save_mcr);
+    serial8250_clear_fifos (port);
+    serial_in (port, UART_RX);
+    serial_out (port, UART_IER, 0);
+}
+
+
+/**
+ * @brief Set a UART to operational mode for transmitting data.
+ * @param[in] port Which port to initialise
+ * @param[in] internal_loopback If true the UART is set to internal loopback.
+ *                              If false set to use the external signals.
+ */
+static void set_uart_operational_mode (uart_port_t *const port, const BOOL internal_loopback)
+{
+    /* Enable 950 mode, with 128 deep FIFOs */
+    serial_out (port, UART_LCR, UART_LCR_CONF_MODE_B);
+    serial_out (port, UART_EFR, UART_EFR_ECB);
+    serial_out (port, UART_LCR, 0x00);
+    serial_out (port, UART_FCR, UART_FCR_ENABLE_FIFO);
+
+    /* Set 8 data bits, 1 stop bit, no parity */
+    port->lcr = UART_LCR_WLEN8;
+
+    /* Set a divisor of one */
+    serial_out (port, UART_LCR, port->lcr | UART_LCR_DLAB);
+    serial_out (port, UART_DLL, 1);
+    serial_out (port, UART_DLM, 0);
+    serial_out (port, UART_LCR, port->lcr);
+
+    /* Set the clock pre-scaler to 6.
+     * With the 14.7456MHz oscillator, this results in a baud rate of 2.4576 Mbaud. */
+    serial_icr_write (port, UART_TCR, 6);
+
+    serial_out (port, UART_MCR, internal_loopback ? UART_MCR_LOOP : 0);
+}
+
+
+/**
+ * @brief Perform a simple loopback test for a pair of UARTs.
+ * @param[in] tx The UART used to transmit
+ * @param[in] rx The UART used to receive
+ */
+static void loopback_test_fifo_depth (uart_port_t *const tx, uart_port_t *const rx)
+{
+    U8 byte_count;
+    U8 lsr;
+    BOOL rx_data_ok = TRUE;
+    U8 rx_data;
+
+    /* Queue for transmission the number of bytes of the Tx and Rx FIFOs.
+     * This shouldn't result in a receive overrun. */
+    for (byte_count = 0; byte_count < UART_FIFO_DEPTH; byte_count++)
+    {
+        do
+        {
+            lsr = serial_in (tx, UART_LSR);
+        } while ((lsr & UART_LSR_THRE) == 0);
+        serial_out (tx, UART_TX, byte_count);
+    }
+
+    /* Wait to receive the expected bytes transmitted.
+     * @todo no receive timeout. */
+    for (byte_count = 0; byte_count < UART_FIFO_DEPTH; byte_count++)
+    {
+        do
+        {
+            lsr = serial_in (rx, UART_LSR);
+        } while ((lsr & UART_LSR_DR) == 0);
+
+        rx_data = serial_in (rx, UART_RX);
+        if ((lsr & UART_LSR_BRK_ERROR_BITS) != 0)
+        {
+            printf ("FAIL: lsr errors 0x%x at byte count %u\n", lsr, byte_count);
+            rx_data_ok = FALSE;
+        }
+        else if (rx_data != byte_count)
+        {
+            printf ("FAIL: At byte count %u got %u\n", byte_count, rx_data);
+            rx_data_ok = FALSE;
+        }
+    }
+
+    if (rx_data_ok)
+    {
+        printf ("Sent %u bytes from UART at bar_index %u -> bar_index %u\n", UART_FIFO_DEPTH, tx->bar_index, rx->bar_index);
+    }
 }
 
 
@@ -250,6 +359,7 @@ static void perform_uart_tests (PLX_DEVICE_OBJECT *const device, const BOOL use_
     uart_port_t ports[NUM_UARTS];
     unsigned int port_index;
     PLX_STATUS status;
+    BOOL internal_loopback;
 
     /* Initialise ports to access both UARTS on the board */
     memset (ports, 0, sizeof (ports));
@@ -285,6 +395,15 @@ static void perform_uart_tests (PLX_DEVICE_OBJECT *const device, const BOOL use_
     {
         autoconfig (&ports[port_index]);
     }
+
+    /* Perform a loopback test with loopback internal to the UARTs */
+    internal_loopback = TRUE;
+    for (port_index = 0; port_index < NUM_UARTS; port_index++)
+    {
+        set_uart_operational_mode (&ports[port_index], internal_loopback);
+    }
+    loopback_test_fifo_depth (&ports[0], &ports[0]);
+    loopback_test_fifo_depth (&ports[1], &ports[1]);
 
     /* Unmap the BARs of the ports (if were mapped) */
     for (port_index = 0; port_index < NUM_UARTS; port_index++)
