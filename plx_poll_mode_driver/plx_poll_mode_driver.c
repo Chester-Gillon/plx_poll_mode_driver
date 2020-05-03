@@ -22,6 +22,8 @@ typedef struct
     U8 bar_index;
     /** If non-NULL the virtual address which is mapped to the PCI BAR to allow direct access to the UART registers */
     void *bar_mapping;
+    /** Tracks Additional Control Register */
+    U8 acr;
 } uart_port_t;
 
 
@@ -33,7 +35,7 @@ typedef struct
  * @param[in] offset The register offset to write to
  * @param[in] value The register value to write
  */
-static void serial_out (const uart_port_t *const port, const U32 offset, const U8 value)
+static void serial_out (uart_port_t *const port, const U32 offset, const U8 value)
 {
     PLX_STATUS status;
     U8 data = value;
@@ -64,7 +66,7 @@ static void serial_out (const uart_port_t *const port, const U32 offset, const U
  * @param[in] offset The register offset to read from
  * @return The register value
  */
-static U8 serial_in (const uart_port_t *const port, const U32 offset)
+static U8 serial_in (uart_port_t *const port, const U32 offset)
 {
     PLX_STATUS status;
     U8 data;
@@ -89,13 +91,80 @@ static U8 serial_in (const uart_port_t *const port, const U32 offset)
 }
 
 
+/*
+ * For the 16C950
+ */
+static void serial_icr_write (uart_port_t *const port, const U32 offset, const U8 value)
+{
+    serial_out (port, UART_SCR, offset);
+    serial_out (port, UART_ICR, value);
+}
+
+static unsigned int serial_icr_read (uart_port_t *const port, const U32 offset)
+{
+    unsigned int value;
+
+    serial_icr_write (port, UART_ACR, port->acr | UART_ACR_ICRRD);
+    serial_out (port, UART_SCR, offset);
+    value = serial_in (port, UART_ICR);
+    serial_icr_write (port, UART_ACR, port->acr);
+
+    return value;
+}
+
+
+/**
+ * @brief Read the ID bytes of the UART checking that find a 16C950
+ * @param[in] port Which UART to auto-detect
+ */
+static void check_16c950_id (uart_port_t *const port)
+{
+    /*
+     * The 16C950 requires 0xbf to be written to the LCR to read the ID.
+     */
+    serial_out (port, UART_LCR, UART_LCR_CONF_MODE_B);
+    if (serial_in (port, UART_EFR) == 0)
+    {
+        U8 id1, id2, id3, rev;
+
+        /*
+         * Check for Oxford Semiconductor 16C950.
+         */
+        port->acr = 0;
+        serial_out (port, UART_LCR, UART_LCR_CONF_MODE_B);
+        serial_out (port, UART_EFR, UART_EFR_ECB);
+        serial_out (port, UART_LCR, 0x00);
+        id1 = serial_icr_read (port, UART_ID1);
+        id2 = serial_icr_read (port, UART_ID2);
+        id3 = serial_icr_read (port, UART_ID3);
+        rev = serial_icr_read (port, UART_REV);
+
+        if ((id1 == 0x16) && (id2 == 0xC9) && (id3 == 0x50) && (rev == 0x03))
+        {
+            printf ("Detected 16C950 rev B on bar_index %u\n", port->bar_index);
+        }
+        else
+        {
+            printf ("Unknown EFR device on bar_index=%u : id1=%x id2=%x id3=%x rec=%x\n",
+                    port->bar_index, id1, id2, id3, rev);
+            exit (EXIT_FAILURE);
+        }
+    }
+    else
+    {
+        printf ("Unknown EFR trying to read ID on bar_index %u\n", port->bar_index);
+        exit (EXIT_FAILURE);
+    }
+}
+
+
 /**
  * @brief Perform an auto-detection sequence, on which should be an OX16C950 UART.
  * @details This is a cutdown sequence from the Linux Kernel 8250_core.c, excluding tests not applicable
  *          to the expected UART.
  * @param[in] port Which UART to auto-detect
  */
-static void autoconfig (const uart_port_t *const port)
+static void autoconfig (uart_port_t *const port)
 {
     U8 status1, scratch, scratch2, scratch3;
     U8 save_lcr, save_mcr;
@@ -162,7 +231,7 @@ static void autoconfig (const uart_port_t *const port)
         exit (EXIT_FAILURE);
         break;
     case 3:
-        /* @todo add autoconfig_16550a */
+        check_16c950_id (port);
         break;
     }
 }
