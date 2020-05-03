@@ -94,13 +94,13 @@ static U8 serial_in (uart_port_t *const port, const U32 offset)
 /*
  * For the 16C950
  */
-static void serial_icr_write (uart_port_t *const port, const U32 offset, const U8 value)
+static void serial_icr_write (uart_port_t *const port, const U8 offset, const U8 value)
 {
     serial_out (port, UART_SCR, offset);
     serial_out (port, UART_ICR, value);
 }
 
-static unsigned int serial_icr_read (uart_port_t *const port, const U32 offset)
+static unsigned int serial_icr_read (uart_port_t *const port, const U8 offset)
 {
     unsigned int value;
 
