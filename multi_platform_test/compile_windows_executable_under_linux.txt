@@ -1,0 +1,221 @@
+== Package installation ==
+
+[root@sandy-centos mr_halfword]# yum install mingw32-gcc-g++
+Loaded plugins: refresh-packagekit, security
+Setting up Install Process
+epel/metalink                                            |  30 kB     00:00     
+epel                                                     | 4.7 kB     00:00     
+epel/primary_db                                          | 6.1 MB     00:07     
+scootersoftware                                          | 2.9 kB     00:00     
+sl                                                       | 3.7 kB     00:00     
+sl-security                                              | 2.9 kB     00:00     
+sl6x                                                     | 3.7 kB     00:00     
+sl6x-security                                            | 2.9 kB     00:00     
+No package mingw32-gcc-g++ available.
+Error: Nothing to do
+[root@sandy-centos mr_halfword]# yum install mingw32-gcc-c++
+Loaded plugins: refresh-packagekit, security
+Setting up Install Process
+Resolving Dependencies
+--> Running transaction check
+---> Package mingw32-gcc-c++.x86_64 0:4.9.2-1.el6 will be installed
+--> Processing Dependency: mingw32-gcc = 4.9.2-1.el6 for package: mingw32-gcc-c++-4.9.2-1.el6.x86_64
+--> Processing Dependency: libmpc.so.2()(64bit) for package: mingw32-gcc-c++-4.9.2-1.el6.x86_64
+--> Running transaction check
+---> Package libmpc.x86_64 0:0.8-3.el6 will be installed
+---> Package mingw32-gcc.x86_64 0:4.9.2-1.el6 will be installed
+--> Processing Dependency: mingw32-binutils for package: mingw32-gcc-4.9.2-1.el6.x86_64
+--> Processing Dependency: mingw32-cpp for package: mingw32-gcc-4.9.2-1.el6.x86_64
+--> Processing Dependency: mingw32-crt for package: mingw32-gcc-4.9.2-1.el6.x86_64
+--> Processing Dependency: mingw32-headers for package: mingw32-gcc-4.9.2-1.el6.x86_64
+--> Running transaction check
+---> Package mingw32-binutils.x86_64 0:2.25-2.el6 will be installed
+--> Processing Dependency: mingw-binutils-generic = 2.25-2.el6 for package: mingw32-binutils-2.25-2.el6.x86_64
+--> Processing Dependency: mingw32-filesystem >= 95 for package: mingw32-binutils-2.25-2.el6.x86_64
+---> Package mingw32-cpp.x86_64 0:4.9.2-1.el6 will be installed
+---> Package mingw32-crt.noarch 0:3.3.0-1.el6 will be installed
+---> Package mingw32-headers.noarch 0:3.3.0-1.el6 will be installed
+--> Processing Dependency: mingw32-winpthreads for package: mingw32-headers-3.3.0-1.el6.noarch
+--> Running transaction check
+---> Package mingw-binutils-generic.x86_64 0:2.25-2.el6 will be installed
+---> Package mingw32-filesystem.noarch 0:100-1.el6 will be installed
+--> Processing Dependency: mingw-filesystem-base = 100-1.el6 for package: mingw32-filesystem-100-1.el6.noarch
+---> Package mingw32-winpthreads.noarch 0:3.3.0-1.el6 will be installed
+--> Running transaction check
+---> Package mingw-filesystem-base.noarch 0:100-1.el6 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package                      Arch         Version             Repository  Size
+================================================================================
+Installing:
+ mingw32-gcc-c++              x86_64       4.9.2-1.el6         epel        10 M
+Installing for dependencies:
+ libmpc                       x86_64       0.8-3.el6           epel        44 k
+ mingw-binutils-generic       x86_64       2.25-2.el6          epel       1.4 M
+ mingw-filesystem-base        noarch       100-1.el6           epel        34 k
+ mingw32-binutils             x86_64       2.25-2.el6          epel       5.5 M
+ mingw32-cpp                  x86_64       4.9.2-1.el6         epel       4.7 M
+ mingw32-crt                  noarch       3.3.0-1.el6         epel       1.5 M
+ mingw32-filesystem           noarch       100-1.el6           epel       151 k
+ mingw32-gcc                  x86_64       4.9.2-1.el6         epel       8.1 M
+ mingw32-headers              noarch       3.3.0-1.el6         epel       4.4 M
+ mingw32-winpthreads          noarch       3.3.0-1.el6         epel        42 k
+
+Transaction Summary
+================================================================================
+Install      11 Package(s)
+
+Total download size: 36 M
+Installed size: 171 M
+Is this ok [y/N]: y
+Downloading Packages:
+(1/11): libmpc-0.8-3.el6.x86_64.rpm                      |  44 kB     00:00     
+(2/11): mingw-binutils-generic-2.25-2.el6.x86_64.rpm     | 1.4 MB     00:01     
+(3/11): mingw-filesystem-base-100-1.el6.noarch.rpm       |  34 kB     00:00     
+(4/11): mingw32-binutils-2.25-2.el6.x86_64.rpm           | 5.5 MB     00:04     
+(5/11): mingw32-cpp-4.9.2-1.el6.x86_64.rpm               | 4.7 MB     00:04     
+(6/11): mingw32-crt-3.3.0-1.el6.noarch.rpm               | 1.5 MB     00:01     
+(7/11): mingw32-filesystem-100-1.el6.noarch.rpm          | 151 kB     00:00     
+(8/11): mingw32-gcc-4.9.2-1.el6.x86_64.rpm               | 8.1 MB     00:06     
+(9/11): mingw32-gcc-c++-4.9.2-1.el6.x86_64.rpm           |  10 MB     00:08     
+(10/11): mingw32-headers-3.3.0-1.el6.noarch.rpm          | 4.4 MB     00:03     
+(11/11): mingw32-winpthreads-3.3.0-1.el6.noarch.rpm      |  42 kB     00:00     
+--------------------------------------------------------------------------------
+Total                                           1.1 MB/s |  36 MB     00:33     
+Running rpm_check_debug
+Running Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing : libmpc-0.8-3.el6.x86_64                                     1/11 
+  Installing : mingw-binutils-generic-2.25-2.el6.x86_64                    2/11 
+  Installing : mingw-filesystem-base-100-1.el6.noarch                      3/11 
+  Installing : mingw32-filesystem-100-1.el6.noarch                         4/11 
+  Installing : mingw32-crt-3.3.0-1.el6.noarch                              5/11 
+  Installing : mingw32-winpthreads-3.3.0-1.el6.noarch                      6/11 
+  Installing : mingw32-headers-3.3.0-1.el6.noarch                          7/11 
+  Installing : mingw32-binutils-2.25-2.el6.x86_64                          8/11 
+  Installing : mingw32-cpp-4.9.2-1.el6.x86_64                              9/11 
+  Installing : mingw32-gcc-4.9.2-1.el6.x86_64                             10/11 
+  Installing : mingw32-gcc-c++-4.9.2-1.el6.x86_64                         11/11 
+  Verifying  : libmpc-0.8-3.el6.x86_64                                     1/11 
+  Verifying  : mingw32-binutils-2.25-2.el6.x86_64                          2/11 
+  Verifying  : mingw32-gcc-4.9.2-1.el6.x86_64                              3/11 
+  Verifying  : mingw32-filesystem-100-1.el6.noarch                         4/11 
+  Verifying  : mingw32-crt-3.3.0-1.el6.noarch                              5/11 
+  Verifying  : mingw-filesystem-base-100-1.el6.noarch                      6/11 
+  Verifying  : mingw32-winpthreads-3.3.0-1.el6.noarch                      7/11 
+  Verifying  : mingw32-cpp-4.9.2-1.el6.x86_64                              8/11 
+  Verifying  : mingw32-headers-3.3.0-1.el6.noarch                          9/11 
+  Verifying  : mingw-binutils-generic-2.25-2.el6.x86_64                   10/11 
+  Verifying  : mingw32-gcc-c++-4.9.2-1.el6.x86_64                         11/11 
+
+Installed:
+  mingw32-gcc-c++.x86_64 0:4.9.2-1.el6                                          
+
+Dependency Installed:
+  libmpc.x86_64 0:0.8-3.el6                                                     
+  mingw-binutils-generic.x86_64 0:2.25-2.el6                                    
+  mingw-filesystem-base.noarch 0:100-1.el6                                      
+  mingw32-binutils.x86_64 0:2.25-2.el6                                          
+  mingw32-cpp.x86_64 0:4.9.2-1.el6                                              
+  mingw32-crt.noarch 0:3.3.0-1.el6                                              
+  mingw32-filesystem.noarch 0:100-1.el6                                         
+  mingw32-gcc.x86_64 0:4.9.2-1.el6                                              
+  mingw32-headers.noarch 0:3.3.0-1.el6                                          
+  mingw32-winpthreads.noarch 0:3.3.0-1.el6                                      
+
+Complete!
+
+
+== Dependency on libwinpthread-1.dll ==
+
+Initially build of the test program which used clock_getime() and clock_getres() used:
+i686-w64-mingw32-gcc multi_platform_test.c -o Debug/multi_platform_test.exe -l pthread
+
+Which resulted in a dependency on libwinpthread-1.dll:
+$ objdump --private-headers Debug/multi_platform_test.exe 
+
+Debug/multi_platform_test.exe:     file format pei-i386
+
+<snip>
+	DLL Name: libwinpthread-1.dll
+	vma:  Hint/Ord Member-Name Bound-To
+	6500	   11  clock_getres
+	6510	   12  clock_gettime
+
+
+Install the static version of winpthreads:
+# yum install mingw32-winpthreads-static
+Loaded plugins: refresh-packagekit, security
+Setting up Install Process
+Resolving Dependencies
+--> Running transaction check
+---> Package mingw32-winpthreads-static.noarch 0:3.3.0-1.el6 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package                         Arch        Version            Repository
+                                                                           Size
+================================================================================
+Installing:
+ mingw32-winpthreads-static      noarch      3.3.0-1.el6        epel       24 k
+
+Transaction Summary
+================================================================================
+Install       1 Package(s)
+
+Total download size: 24 k
+Installed size: 120 k
+Is this ok [y/N]: y
+Downloading Packages:
+mingw32-winpthreads-static-3.3.0-1.el6.noarch.rpm        |  24 kB     00:00     
+Running rpm_check_debug
+Running Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing : mingw32-winpthreads-static-3.3.0-1.el6.noarch                1/1 
+  Verifying  : mingw32-winpthreads-static-3.3.0-1.el6.noarch                1/1 
+
+Installed:
+  mingw32-winpthreads-static.noarch 0:3.3.0-1.el6                               
+
+Complete!
+
+
+And can now add the -static option to link in the static pthread library to avoid dependencies on the DLL:
+i686-w64-mingw32-gcc multi_platform_test.c -o Debug/multi_platform_test.exe -static -l pthread
+
+
+== windows notes ==
+
+To convert from the DWARF debug information created by GCC into Microsoft PDB format run:
+cv2pdb multi_platform_test.exe
+
+This:
+- Creates a multi_platform_test.pdb file
+- Modified the multi_platform_test.exe file
+
+The resulting executable can then be debugged in Visual Studio.
+
+cv2pdb was downloaded from https://github.com/rainers/cv2pdb/releases
+
+Debugging shows a call to clock_gettime (CLOCK_MONOTONIC) ends up in QueryPerformanceCounter, which uses a rdtscp instruction
+
+Windows output:
+CLOCK_REALTIME res.tv_sec=0 res.tv_nsec=15625000
+CLOCK_MONOTONIC res.tv_sec=0 res.tv_nsec=100
+Used clock_gettime (CLOCK_MONOTONIC) to delay for one second
+
+
+== CentOS results ==
+
+$ Debug/multi_platform_test
+CLOCK_REALTIME res.tv_sec=0 res.tv_nsec=1
+CLOCK_MONOTONIC res.tv_sec=0 res.tv_nsec=1
+Used clock_gettime (CLOCK_MONOTONIC) to delay for one second
+
