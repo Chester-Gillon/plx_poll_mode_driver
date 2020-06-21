@@ -1,18 +1,5 @@
 == Package installation ==
 
-[root@sandy-centos mr_halfword]# yum install mingw32-gcc-g++
-Loaded plugins: refresh-packagekit, security
-Setting up Install Process
-epel/metalink                                            |  30 kB     00:00     
-epel                                                     | 4.7 kB     00:00     
-epel/primary_db                                          | 6.1 MB     00:07     
-scootersoftware                                          | 2.9 kB     00:00     
-sl                                                       | 3.7 kB     00:00     
-sl-security                                              | 2.9 kB     00:00     
-sl6x                                                     | 3.7 kB     00:00     
-sl6x-security                                            | 2.9 kB     00:00     
-No package mingw32-gcc-g++ available.
-Error: Nothing to do
 [root@sandy-centos mr_halfword]# yum install mingw32-gcc-c++
 Loaded plugins: refresh-packagekit, security
 Setting up Install Process
@@ -218,4 +205,135 @@ $ Debug/multi_platform_test
 CLOCK_REALTIME res.tv_sec=0 res.tv_nsec=1
 CLOCK_MONOTONIC res.tv_sec=0 res.tv_nsec=1
 Used clock_gettime (CLOCK_MONOTONIC) to delay for one second
+
+
+== Initial attempt at getting libxml2 support for cygwin ==
+
+Install dependent packages available from the yum repos:
+# yum install mingw32-zlib-static
+Loaded plugins: refresh-packagekit, security
+Setting up Install Process
+Resolving Dependencies
+--> Running transaction check
+---> Package mingw32-zlib-static.noarch 0:1.2.8-2.el6 will be installed
+--> Processing Dependency: mingw32-zlib = 1.2.8-2.el6 for package: mingw32-zlib-static-1.2.8-2.el6.noarch
+--> Running transaction check
+---> Package mingw32-zlib.noarch 0:1.2.8-2.el6 will be installed
+--> Processing Dependency: mingw32-pkg-config for package: mingw32-zlib-1.2.8-2.el6.noarch
+--> Running transaction check
+---> Package mingw32-pkg-config.x86_64 0:0.28-2.el6 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+================================================================================
+ Package                    Arch          Version             Repository   Size
+================================================================================
+Installing:
+ mingw32-zlib-static        noarch        1.2.8-2.el6         epel         46 k
+Installing for dependencies:
+ mingw32-pkg-config         x86_64        0.28-2.el6          epel         45 k
+ mingw32-zlib               noarch        1.2.8-2.el6         epel         78 k
+
+Transaction Summary
+================================================================================
+Install       3 Package(s)
+
+Total download size: 169 k
+Installed size: 420 k
+Is this ok [y/N]: y
+Downloading Packages:
+(1/3): mingw32-pkg-config-0.28-2.el6.x86_64.rpm          |  45 kB     00:00     
+(2/3): mingw32-zlib-1.2.8-2.el6.noarch.rpm               |  78 kB     00:02     
+(3/3): mingw32-zlib-static-1.2.8-2.el6.noarch.rpm        |  46 kB     00:00     
+--------------------------------------------------------------------------------
+Total                                            56 kB/s | 169 kB     00:03     
+Running rpm_check_debug
+Running Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing : mingw32-pkg-config-0.28-2.el6.x86_64                         1/3 
+  Installing : mingw32-zlib-1.2.8-2.el6.noarch                              2/3 
+  Installing : mingw32-zlib-static-1.2.8-2.el6.noarch                       3/3 
+  Verifying  : mingw32-pkg-config-0.28-2.el6.x86_64                         1/3 
+  Verifying  : mingw32-zlib-static-1.2.8-2.el6.noarch                       2/3 
+  Verifying  : mingw32-zlib-1.2.8-2.el6.noarch                              3/3 
+
+Installed:
+  mingw32-zlib-static.noarch 0:1.2.8-2.el6                                      
+
+Dependency Installed:
+  mingw32-pkg-config.x86_64 0:0.28-2.el6    mingw32-zlib.noarch 0:1.2.8-2.el6   
+
+Complete!
+
+
+Download packages:
+http://lxsoft103.cern.ch/cern/slc6X/x86_64/yum/updates/mingw32-libxml2-static-2.7.6-6.el6_3.noarch.rpm
+http://lxsoft103.cern.ch/cern/slc6X/x86_64/yum/updates/mingw32-libxml2-2.7.6-6.el6_3.noarch.rpm
+http://lxsoft103.cern.ch/cern/slc6X/x86_64/yum/updates/mingw32-iconv-static-1.12-12.el6.5.noarch.rpm
+http://lxsoft103.cern.ch/cern/slc6X/x86_64/yum/updates/mingw32-iconv-1.12-12.el6.5.noarch.rpm
+
+Install packages:
+# rpm -ivh mingw32-iconv-1.12-12.el6.5.noarch.rpm 
+Preparing...                ########################################### [100%]
+   1:mingw32-iconv          ########################################### [100%]
+
+# rpm -ivh mingw32-iconv-static-1.12-12.el6.5.noarch.rpm 
+Preparing...                ########################################### [100%]
+   1:mingw32-iconv-static   ########################################### [100%]
+
+# rpm -ivh mingw32-libxml2-2.7.6-6.el6_3.noarch.rpm 
+Preparing...                ########################################### [100%]
+   1:mingw32-libxml2        ########################################### [100%]
+
+# rpm -ivh mingw32-libxml2-static-2.7.6-6.el6_3.noarch.rpm 
+Preparing...                ##############################
+############# [100%]
+   1:mingw32-libxml2-static ########################################### [100%]
+
+However, there is a mismatch is the installation root for the two sets of packages:
+a. The mingw32-gcc-c++, mingw32-winpthreads-static and mingw32-zlib-static from the epel repo install under /usr/i686-w64-mingw32
+b. The packages from http://lxsoft103.cern.ch/cern/slc6X install under /usr/i686-pc-mingw32
+
+Therefore, removed the packages from http://lxsoft103.cern.ch/cern/slc6X:
+# rpm -e mingw32-libxml2-static
+# rpm -e mingw32-libxml2
+# rpm -e mingw32-iconv-static
+# rpm -e mingw32-iconv
+
+And clean up the empty directory structure:
+# rm -rf /usr/i686-pc-mingw32/
+
+
+== 2nd attempt at getting libxml2 support for cygwin ==
+
+Download the following CentOS 7 packages from https://download-ib01.fedoraproject.org/pub/epel/7/aarch64/Packages/m
+https://download-ib01.fedoraproject.org/pub/epel/7/aarch64/Packages/m/mingw32-win-iconv-0.0.6-4.el7.noarch.rpm
+https://download-ib01.fedoraproject.org/pub/epel/7/aarch64/Packages/m/mingw32-win-iconv-static-0.0.6-4.el7.noarch.rpm
+https://download-ib01.fedoraproject.org/pub/epel/7/aarch64/Packages/m/mingw32-libxml2-2.9.3-1.el7.noarch.rpm
+https://download-ib01.fedoraproject.org/pub/epel/7/aarch64/Packages/m/mingw32-libxml2-static-2.9.3-1.el7.noarch.rpm
+
+While these are under aarch64, rather than x86_64, since they are noarch packages not an issue.
+
+Install the packages:
+# rpm -ivh mingw32-win-iconv-0.0.6-4.el7.noarch.rpm 
+warning: mingw32-win-iconv-0.0.6-4.el7.noarch.rpm: Header V3 RSA/SHA256 Signature, key ID 352c64e5: NOKEY
+Preparing...                ########################################### [100%]
+   1:mingw32-win-iconv      ########################################### [100%]
+
+# rpm -ivh mingw32-win-iconv-static-0.0.6-4.el7.noarch.rpm 
+warning: mingw32-win-iconv-static-0.0.6-4.el7.noarch.rpm: Header V3 RSA/SHA256 Signature, key ID 352c64e5: NOKEY
+Preparing...                ########################################### [100%]
+   1:mingw32-win-iconv-stati########################################### [100%]
+
+# rpm -ivh mingw32-libxml2-2.9.3-1.el7.noarch.rpm 
+warning: mingw32-libxml2-2.9.3-1.el7.noarch.rpm: Header V3 RSA/SHA256 Signature, key ID 352c64e5: NOKEY
+Preparing...                ########################################### [100%]
+   1:mingw32-libxml2        ########################################### [100%]
+
+# rpm -ivh mingw32-libxml2-static-2.9.3-1.el7.noarch.rpm 
+warning: mingw32-libxml2-static-2.9.3-1.el7.noarch.rpm: Header V3 RSA/SHA256 Signature, key ID 352c64e5: NOKEY
+Preparing...                ########################################### [100%]
+   1:mingw32-libxml2-static ########################################### [100%]
 
