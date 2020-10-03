@@ -1,3 +1,5 @@
+== run on 3.10.33-rt32.33.el6rt.x86_64 ==
+
 Output after had changed to compile against ~/PlxSdk-8.00 which is the unmodified Broadcom_PCI_PCIe_SDK_Linux_v8_00_Final_2019-07-30.tar.gz
 I.e. no specific changes to the driver which still worked.
 
@@ -73,3 +75,143 @@ alias:          pci:v000010B5d00005601sv*sd*bc*sc*i*
 alias:          pci:v000010B5d00009056sv*sd*bc*sc*i*
 depends:        
 vermagic:       3.10.33-rt32.33.el6rt.x86_64 SMP preempt mod_unload 
+
+
+== run on 5.4.0-xilinx-v2020.1 aarch64 ==
+
+With the SeaLevel 7205e fitted to a MYD-CZU4EV.
+
+~/myir_workspace/pcie_root_complex is the Vivado project which has configured the PCIe root port with 1 lane.
+
+/opt/pkg/petalinux/2020.1/MYD_CZU4EV_RC is the petalinux project which configured the PCIe root port support,
+and built the Plx9056.ko Kernel module using the PlxSdk-8.00 source. The only source change for the Kernel module
+was the following:
+$ git diff ~/gsc/PlxSdk-8.00/PlxSdk/Driver/Source.Plx9000/PlxChip.h project-spec/meta-user/recipes-modules/plxsdk/files/PlxChip.h
+diff --git a/home/mr_halfword/gsc/PlxSdk-8.00/PlxSdk/Driver/Source.Plx9000/PlxChip.h b/project-spec/meta-user/recipes-modules/plxsdk/files/PlxChip.h
+index 2caf80f..fdac58f 100644
+--- a/home/mr_halfword/gsc/PlxSdk-8.00/PlxSdk/Driver/Source.Plx9000/PlxChip.h
++++ b/project-spec/meta-user/recipes-modules/plxsdk/files/PlxChip.h
+@@ -139,7 +139,9 @@
+     #define PLX_CHIP_TYPE                       0x9056
+     #define PLX_DRIVER_NAME                     "Plx9056"
+     #define PLX_DRIVER_NAME_UNICODE             L"Plx9056"
+-    #define DEFAULT_SIZE_COMMON_BUFFER          (64 * 1024)                  // Default size of Common Buffer
++    //#define DEFAULT_SIZE_COMMON_BUFFER          (64 * 1024)                  // Default size of Common Buffer
++    //@todo Plx_dma_buffer_alloc() segfaults under ARM
++    #define DEFAULT_SIZE_COMMON_BUFFER          0                  // Default size of Common Buffer
+     #define NUM_DMA_CHANNELS                    2                            // Total number of DMA Channels
+ 
+     // Referenced register definitions
+
+Without the modification to disable the DMA buffer allocation the Plx_dma_buffer_alloc() function in SuppFunc.c
+generated a "Unable to handle kernel paging request at virtual address" in the following, apparently on the first
+loop when added the DebugPrintf():
+    // Tag all pages as reserved
+    for (virt_addr = (PLX_UINT_PTR)pMemObject->pKernelVa;
+         virt_addr < ((PLX_UINT_PTR)pMemObject->pKernelVa + pMemObject->Size);
+         virt_addr += PAGE_SIZE)
+    {
+    //DebugPrintf(("virt_addr=%px\n", virt_addr));
+        SetPageReserved(
+            virt_to_page( PLX_INT_TO_PTR(virt_addr) )
+            );
+    }
+
+The project-spec directory contains the petalinux build files - the source files were manually copied into
+project-spec/meta-user/recipes-modules/plxsdk/files rather than being obtain by the Yocto build system.
+
+The build_aarch64.sh script built the plx_poll_mode_driver program for aarch64 and, and the required PlxSdk API 
+source files, rather than actual getting the PlxSdk makefiles to cross-compile a library.
+
+The petalinux build causes the Plx9056.ko kernel module to be loaded at boot, but the /dev/plx/Plx9056 file
+required by the PlxApi to open the driver wasn't created at boot.
+
+Therefore, after hooted manual copy the Plx_load script:
+$ scp -p /home/mr_halfword/gsc/PlxSdk-8.00/PlxSdk/Bin/Plx_load  root@192.168.0.100:
+root@192.168.0.100's password: 
+Plx_load                                      100% 8392     9.5MB/s   00:00    
+
+Remove the module loaded at boot:
+root@MYD_CZU4EV_RC:~# rmmod Plx9056
+
+Prepare the directory the Plx_load script expects the module:
+root@MYD_CZU4EV_RC:~# mkdir -p /home/root/PlxSdk/Driver/Source.Plx9000/Output
+root@MYD_CZU4EV_RC:~# ln -s /lib/modules/5.4.0-xilinx-v2020.1/extra/Plx9056.ko /home/root/PlxSdk/Driver/Source.Plx9000/Output/Plx9056.ko  
+
+Run the script to load the module and create the device file:
+root@MYD_CZU4EV_RC:~# ./Plx_load 9056
+
+Install: Plx9056
+  Load module......... ./Plx_load: line 193: modinfo: command not found
+Ok (/home/root/PlxSdk/Driver/Source.Plx9000/Output)
+  Verify load......... Ok
+  Get major number.... Ok (MajorID = 243)
+  Create node path.... Ok (/dev/plx)
+  Create nodes........ Ok (/dev/plx/Plx9056)
+
+The driver is shown as bound to the PCI9056:
+root@MYD_CZU4EV_RC:~# lspci -vvv -d10b5:
+01:00.0 PCI bridge: PLX Technology, Inc. PEX 8111 PCI Express-to-PCI Bridge (rev 21) (prog-if 00 [Normal decode])
+    Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+    Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+    Latency: 0
+    Interrupt: pin A routed to IRQ 0
+    Bus: primary=01, secondary=02, subordinate=02, sec-latency=0
+    I/O behind bridge: 0000f000-00000fff [empty]
+    Memory behind bridge: e0000000-e00fffff [size=1M]
+    Prefetchable memory behind bridge: fff00000-000fffff [empty]
+    Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ <SERR- <PERR-
+    BridgeCtl: Parity- SERR+ NoISA- VGA- VGA16- MAbort- >Reset- FastB2B-
+        PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
+    Capabilities: [50] MSI: Enable- Count=1/1 Maskable- 64bit+
+        Address: 0000000000000000  Data: 0000
+    Capabilities: [60] Express (v1) PCI-Express to PCI/PCI-X Bridge, MSI 00
+        DevCap: MaxPayload 128 bytes, PhantFunc 0
+            ExtTag- AttnBtn- AttnInd- PwrInd- RBE- SlotPowerLimit 0.000W
+        DevCtl: CorrErr- NonFatalErr- FatalErr- UnsupReq-
+            RlxdOrd- ExtTag- PhantFunc- AuxPwr- NoSnoop- BrConfRtry-
+            MaxPayload 128 bytes, MaxReadReq 512 bytes
+        DevSta: CorrErr- NonFatalErr+ FatalErr- UnsupReq+ AuxPwr- TransPend-
+        LnkCap: Port #0, Speed 2.5GT/s, Width x1, ASPM L0s L1, Exit Latency L0s <1us, L1 <16us
+            ClockPM- Surprise- LLActRep- BwNot- ASPMOptComp-
+        LnkCtl: ASPM Disabled; RCB 64 bytes Disabled- CommClk-
+            ExtSynch- ClockPM- AutWidDis- BWInt- AutBWInt-
+        LnkSta: Speed 2.5GT/s (ok), Width x1 (ok)
+            TrErr- Train- SlotClk- DLActive- BWMgmt- ABWMgmt-
+    Capabilities: [100 v1] Power Budgeting <?>
+
+02:04.0 Bridge: PLX Technology, Inc. PCI9056 32-bit 66MHz PCI <-> IOBus Bridge (rev aa)
+    Subsystem: PLX Technology, Inc. Device 3198
+    Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+    Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+    Latency: 64
+    Interrupt: pin A routed to IRQ 53
+    Region 0: Memory at e0000000 (32-bit, non-prefetchable) [size=512]
+    Region 2: Memory at e0000200 (32-bit, non-prefetchable) [size=16]
+    Region 3: Memory at e0000210 (32-bit, non-prefetchable) [size=16]
+    Capabilities: [40] Power Management version 1
+        Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold-)
+        Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
+    Capabilities: [48] Null
+    Capabilities: [4c] Vital Product Data
+pcilib: sysfs_read_vpd: read failed: Input/output error
+        Not readable
+    Kernel driver in use: Plx9056
+    Kernel modules: Plx9056
+
+The test program can be downloaded:
+$ scp -p Debug_aarch64/plx_poll_mode_driver root@192.168.0.100:
+root@192.168.0.100's password: 
+plx_poll_mode_driver                          100%  192KB  40.9MB/s   00:00    
+
+And successfully run:
+root@MYD_CZU4EV_RC:~# ./plx_poll_mode_driver 
+PlxPci_ApiVersion : versionMajor=8 versionMinor=0 versionRevison=0
+Found SIO4 board at bus=2 slot=4 function=0
+PlxPci_DriverVersion : versionMajor=8 versionMinor=0 versionRevison=0
+Performing tests using PlxPci_PciBarSpaceWrite() / PlxPci_PciBarSpaceRead() to access UART registers, which involves user/Kernel space transitions.
+Detected 16C950 rev B on bar_index 2
+Detected 16C950 rev B on bar_index 3
+Sent 128 bytes from UART at bar_index 2 -> bar_index 2
+Sent 128 bytes from UART at bar_index 3 -> bar_index 3
+
