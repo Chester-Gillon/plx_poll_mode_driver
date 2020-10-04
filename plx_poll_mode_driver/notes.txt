@@ -124,7 +124,7 @@ The build_aarch64.sh script built the plx_poll_mode_driver program for aarch64 a
 source files, rather than actual getting the PlxSdk makefiles to cross-compile a library.
 
 The petalinux build causes the Plx9056.ko kernel module to be loaded at boot, but the /dev/plx/Plx9056 file
-required by the PlxApi to open the driver wasn't created at boot.
+required by the PlxApi to open the driver isn't created at boot.
 
 Therefore, after hooted manual copy the Plx_load script:
 $ scp -p /home/mr_halfword/gsc/PlxSdk-8.00/PlxSdk/Bin/Plx_load  root@192.168.0.100:
@@ -204,6 +204,14 @@ $ scp -p Debug_aarch64/plx_poll_mode_driver root@192.168.0.100:
 root@192.168.0.100's password: 
 plx_poll_mode_driver                          100%  192KB  40.9MB/s   00:00    
 
+Checking which libraries are linked:
+root@MYD_CZU4EV_RC:~# ldd ./plx_poll_mode_driver 
+	linux-vdso.so.1 (0x0000007fafa3f000)
+	libdl.so.2 => /lib/libdl.so.2 (0x0000007faf9d0000)
+	libm.so.6 => /lib/libm.so.6 (0x0000007faf926000)
+	libc.so.6 => /lib/libc.so.6 (0x0000007faf7bb000)
+	/lib/ld-linux-aarch64.so.1 (0x0000007fafa11000)
+
 And successfully run:
 root@MYD_CZU4EV_RC:~# ./plx_poll_mode_driver 
 PlxPci_ApiVersion : versionMajor=8 versionMinor=0 versionRevison=0
@@ -214,4 +222,53 @@ Detected 16C950 rev B on bar_index 2
 Detected 16C950 rev B on bar_index 3
 Sent 128 bytes from UART at bar_index 2 -> bar_index 2
 Sent 128 bytes from UART at bar_index 3 -> bar_index 3
+
+
+== failed run on 5.4.0-xilinx-v2020.1 aarch32 ==
+
+Attempted to repeat the above, but compiling for aarch32.
+
+On the machine performing the compilation:
+$ file Debug_aarch32/plx_poll_mode_driver 
+Debug_aarch32/plx_poll_mode_driver: ELF 32-bit LSB shared object, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3, BuildID[sha1]=f76cdd63cdcd8a5a4607b170da8b513b313c38a1, for GNU/Linux 3.2.0, with debug_info, not stripped
+
+But doesn't run on the target:
+root@MYD_CZU4EV_RC:~# ./plx_poll_mode_driver 
+-sh: ./plx_poll_mode_driver: No such file or directory
+
+Due to the /lib/ld-linux-armhf.so.3 not being present:
+root@MYD_CZU4EV_RC:~# readelf -l plx_poll_mode_driver 
+
+Elf file type is DYN (Shared object file)
+Entry point 0xce1
+There are 9 program headers, starting at offset 52
+
+Program Headers:
+  Type           Offset   VirtAddr   PhysAddr   FileSiz MemSiz  Flg Align
+  EXIDX          0x01a61c 0x0001a61c 0x0001a61c 0x00008 0x00008 R   0x4
+  PHDR           0x000034 0x00000034 0x00000034 0x00120 0x00120 R   0x4
+  INTERP         0x000154 0x00000154 0x00000154 0x00019 0x00019 R   0x1
+      [Requesting program interpreter: /lib/ld-linux-armhf.so.3]
+  LOAD           0x000000 0x00000000 0x00000000 0x1a628 0x1a628 R E 0x10000
+  LOAD           0x01aef8 0x0002aef8 0x0002aef8 0x00690 0x00a48 RW  0x10000
+  DYNAMIC        0x01af00 0x0002af00 0x0002af00 0x00100 0x00100 RW  0x4
+  NOTE           0x000170 0x00000170 0x00000170 0x00044 0x00044 R   0x4
+  GNU_STACK      0x000000 0x00000000 0x00000000 0x00000 0x00000 RW  0x10
+  GNU_RELRO      0x01aef8 0x0002aef8 0x0002aef8 0x00108 0x00108 R   0x1
+
+ Section to Segment mapping:
+  Segment Sections...
+   00     .ARM.exidx 
+   01     
+   02     .interp 
+   03     .interp .note.gnu.build-id .note.ABI-tag .gnu.hash .dynsym .dynstr .gnu.version .gnu.version_r .rel.dyn .rel.plt .init .plt .text .fini .rodata .ARM.exidx .eh_frame 
+   04     .init_array .fini_array .dynamic .got .data .bss 
+   05     .dynamic 
+   06     .note.gnu.build-id .note.ABI-tag 
+   07     
+   08     .init_array .fini_array .dynamic 
+
+And ldd on the target is unable to report which other libraries are required:
+root@MYD_CZU4EV_RC:~# ldd ./plx_poll_mode_driver 
+	not a dynamic executable
 
