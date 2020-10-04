@@ -272,3 +272,37 @@ And ldd on the target is unable to report which other libraries are required:
 root@MYD_CZU4EV_RC:~# ldd ./plx_poll_mode_driver 
 	not a dynamic executable
 
+
+== running Ada program under aarch64 ==
+
+As per the comments in build_aarch64.sh, had to install a gnat cross-compiler from the Ubuntu packages due to the
+compiler supplied with the Xilinx 2020.1 software not supporting Ada.
+
+There is https://docs.adacore.com/gnat_ugx-docs/html/gnat_ugx/gnat_ugx/aarch64-elf_topics.html about Ada code
+support for AArch64 on a Xilinx Zynq UltraScale+ MPSoC, but looks like for bare-metal rather than Linux.
+
+The hello world program has a dependeny on the libgnat-8.so.1 library:
+root@MYD_CZU4EV_RC:~# ldd hello_world 
+    linux-vdso.so.1 (0x0000007f93c0f000)
+    libgnat-8.so.1 => not found
+    libc.so.6 => /lib/libc.so.6 (0x0000007f93a60000)
+    /lib/ld-linux-aarch64.so.1 (0x0000007f93be1000)
+
+Where libgnat-8.so.1 can be copied from the workstation:
+$ scp /usr/aarch64-linux-gnu/lib/libgnat-8.so.1 root@192.168.0.100:/lib
+root@192.168.0.100's password: 
+libgnat-8.so.1                                100% 3159KB  56.0MB/s   00:00    
+
+And the program then runs:
+root@MYD_CZU4EV_RC:~# ldd hello_world 
+    linux-vdso.so.1 (0x0000007faa95a000)
+    libgnat-8.so.1 => /lib/libgnat-8.so.1 (0x0000007faa5e6000)
+    libc.so.6 => /lib/libc.so.6 (0x0000007faa47b000)
+    libm.so.6 => /lib/libm.so.6 (0x0000007faa3d1000)
+    libgcc_s.so.1 => /lib/libgcc_s.so.1 (0x0000007faa3ac000)
+    /lib/ld-linux-aarch64.so.1 (0x0000007faa92c000)
+root@MYD_CZU4EV_RC:~# ./hello_world 
+Hello from Ada
+
+
+
