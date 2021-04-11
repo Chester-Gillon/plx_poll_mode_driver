@@ -1,0 +1,260 @@
+== MATLAB R2018b under Windows 10 - failed attempt to build with MinGW64 and debug with Visual Studio ==
+
+Installed MinGW 6.3 C/C++ as listed in
+https://uk.mathworks.com/content/dam/mathworks/mathworks-dot-com/support/sysreq/files/system-requirements-release-2018b-supported-compilers.pdf
+
+Installed via the Matlab Get Add-Ons option. Selected download only, and then installed using:
+c:\Program Files\MATLAB\R2018b\bin\win64>install_supportsoftware.exe -archives C:\Users\mr_halfword\Downloads\MathWorks\SupportPackages\R2018b\
+
+And the compiler was selected:
+>> mex -v -setup
+Verbose mode is on.
+... Looking for compiler 'Intel Parallel Studio XE 2015 with Microsoft Visual Studio 2015 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER15' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2015 with Microsoft Visual Studio 2015 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2016 with Microsoft Visual Studio 2015 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER16' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2016 with Microsoft Visual Studio 2015 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2017 with Microsoft Visual Studio 2015 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER17' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2017 with Microsoft Visual Studio 2015 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2017 with Microsoft Visual Studio 2017 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER17' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2017 with Microsoft Visual Studio 2017 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2018 with Microsoft Visual Studio 2015 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER18' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2018 with Microsoft Visual Studio 2015 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2018 with Microsoft Visual Studio 2017 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER18' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2018 with Microsoft Visual Studio 2017 (C)'.
+... Looking for compiler 'MinGW64 Compiler (C)' ...
+... Looking for environment variable 'MW_MINGW64_LOC' ...Yes ('C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset').
+... Looking for file 'C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\bin\gcc.exe' ...Yes.
+... Looking for folder 'C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset' ...Yes.
+Found installed compiler 'MinGW64 Compiler (C)'.
+... Looking for compiler 'Microsoft Visual C++ 2013 (C)' ...
+... Looking for registry setting 'HKLM\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+... Looking for registry setting 'HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+Did not find installed compiler 'Microsoft Visual C++ 2013 (C)'.
+... Looking for compiler 'Microsoft Visual C++ 2015 (C)' ...
+... Looking for registry setting 'HKLM\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+... Looking for registry setting 'HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+Did not find installed compiler 'Microsoft Visual C++ 2015 (C)'.
+... Looking for compiler 'Microsoft Visual C++ 2017 (C)' ...
+... Looking for registry setting 'HKLM\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+... Looking for registry setting 'HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+Did not find installed compiler 'Microsoft Visual C++ 2017 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2015 with Microsoft Visual Studio 2015 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER15' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2015 with Microsoft Visual Studio 2015 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2016 with Microsoft Visual Studio 2015 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER16' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2016 with Microsoft Visual Studio 2015 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2017 with Microsoft Visual Studio 2015 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER17' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2017 with Microsoft Visual Studio 2015 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2017 with Microsoft Visual Studio 2017 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER17' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2017 with Microsoft Visual Studio 2017 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2018 with Microsoft Visual Studio 2015 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER18' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2018 with Microsoft Visual Studio 2015 (C)'.
+... Looking for compiler 'Intel Parallel Studio XE 2018 with Microsoft Visual Studio 2017 (C)' ...
+... Looking for environment variable 'ICPP_COMPILER18' ...No.
+Did not find installed compiler 'Intel Parallel Studio XE 2018 with Microsoft Visual Studio 2017 (C)'.
+... Looking for compiler 'MinGW64 Compiler (C)' ...
+... Looking for environment variable 'MW_MINGW64_LOC' ...Yes ('C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset').
+... Looking for file 'C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\bin\gcc.exe' ...Yes.
+... Looking for folder 'C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset' ...Yes.
+Found installed compiler 'MinGW64 Compiler (C)'.
+... Looking for compiler 'Microsoft Visual C++ 2013 (C)' ...
+... Looking for registry setting 'HKLM\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+... Looking for registry setting 'HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 12.0 ...No.
+Did not find installed compiler 'Microsoft Visual C++ 2013 (C)'.
+... Looking for compiler 'Microsoft Visual C++ 2015 (C)' ...
+... Looking for registry setting 'HKLM\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+... Looking for registry setting 'HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VC7' 14.0 ...No.
+Did not find installed compiler 'Microsoft Visual C++ 2015 (C)'.
+... Looking for compiler 'Microsoft Visual C++ 2017 (C)' ...
+... Looking for registry setting 'HKLM\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+... Looking for registry setting 'HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+... Looking for registry setting 'HKCU\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\SxS\VS7' 15.0 ...No.
+Did not find installed compiler 'Microsoft Visual C++ 2017 (C)'.
+... Looking for compiler 'MinGW64 Compiler (C)' ...
+... Looking for environment variable 'MW_MINGW64_LOC' ...Yes ('C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset').
+... Looking for file 'C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\bin\gcc.exe' ...Yes.
+... Looking for folder 'C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset' ...Yes.
+Found installed compiler 'MinGW64 Compiler (C)'.
+MEX configured to use 'MinGW64 Compiler (C)' for C language compilation.
+Warning: The MATLAB C and Fortran API has changed to support MATLAB
+	 variables with more than 2^32-1 elements. You will be required
+	 to update your code to utilize the new API.
+	 You can find more information about this at:
+	 https://www.mathworks.com/help/matlab/matlab_external/upgrading-mex-files-to-use-64-bit-api.html.
+
+To choose a different language, select one from the following:
+ mex -setup C++ 
+ mex -setup FORTRAN
+ 
+Compiling an example created a yprime.mexw64 file:
+ >> copyfile(fullfile(matlabroot,'extern','examples','mex','yprime.c'),'.','f')
+>> mex yprime.c
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+
+After Visual Studio C++ 2010 Express was attached to the MATLAB process the Modules view didn't show yprime.mexw64
+and breakpoints on mexFunction and yprime weren't hit.
+
+Process Explorer was showing yprime.mexw64 in the DLLs loaded by MATLAB.
+
+Re-compiling the mex file using the -g option didn't change the behaviour.
+
+Running cv2pdb.exe yprime.mexw64 changed the yprime.mexw64 file and created a yprime.pdb file:
+
+C:\Users\mr_halfword\plx_poll_mode_driver\multi_platform_test\mex>dir
+ Volume in drive C has no label.
+ Volume Serial Number is D6FD-9E86
+
+ Directory of C:\Users\mr_halfword\plx_poll_mode_driver\multi_platform_test\mex
+
+11/04/2021  14:44    <DIR>          .
+11/04/2021  14:44    <DIR>          ..
+29/09/2017  15:41             3,081 yprime.c
+11/04/2021  14:44            59,788 yprime.mexw64
+               2 File(s)         62,869 bytes
+               2 Dir(s)  978,829,299,712 bytes free
+
+C:\Users\mr_halfword\plx_poll_mode_driver\multi_platform_test\mex>c:\Users\mr_halfword\Downloads\cv2pdb.exe yprime.mexw64
+
+C:\Users\mr_halfword\plx_poll_mode_driver\multi_platform_test\mex>dir
+ Volume in drive C has no label.
+ Volume Serial Number is D6FD-9E86
+
+ Directory of C:\Users\mr_halfword\plx_poll_mode_driver\multi_platform_test\mex
+
+11/04/2021  14:44    <DIR>          .
+11/04/2021  14:44    <DIR>          ..
+29/09/2017  15:41             3,081 yprime.c
+11/04/2021  14:44            19,084 yprime.mexw64
+11/04/2021  14:44            27,648 yprime.pdb
+               3 File(s)         49,813 bytes
+               2 Dir(s)  978,829,312,000 bytes free
+
+However, when Visual Studio C++ 2010 Express is attached to MATLAB still doesn't show the yprime.mexw64 module as loaded.
+
+
+== MATLAB R2016b under CentOS 6.10 ==
+
+MATLAB R2016b is the last version to support Red Hat 6.6
+
+Found the GCC 4.4.7 system GCC:
+>> mex -v -setup
+Verbose mode is on.
+... Looking for compiler 'gcc' ...
+... Executing command 'which gcc' ...Yes ('/usr/bin/gcc').
+... Executing command 'gcc -print-file-name=libstdc++.so' ...Yes ('/usr/lib/gcc/x86_64-redhat-linux/4.4.7/libstdc++.so').
+Found installed compiler 'gcc'.
+Copied options file from '/usr/local/MATLAB/R2016b/bin/glnxa64/mexopts/gcc_glnxa64.xml' to '/home/mr_halfword/.matlab/R2016b/mex_C_glnxa64.xml'.
+MEX configured to use 'gcc' for C language compilation.
+Warning: The MATLAB C and Fortran API has changed to support MATLAB
+	 variables with more than 2^32-1 elements. In the near future
+	 you will be required to update your code to utilize the
+	 new API. You can find more information about this at:
+	 http://www.mathworks.com/help/matlab/matlab_external/upgrading-mex-files-to-use-64-bit-api.html.
+
+To choose a different language, select one from the following:
+ mex -setup C++ 
+ mex -setup FORTRAN
+
+Which built OK:
+>> mex -g yprime.c
+Building with 'gcc'.
+MEX completed successfully.
+
+With Eclipse Oxygen 4.7.3a was able to create a "C/C++ Attach to Application" debug configuration.
+With a function breakpoint set on yprime was able to attach to the MATLAB process, and when called yprime
+from the MATLAB command prompt then stopped at the breakpoint with the callstack:
+yprime() at yprime.c:51 0x7fec157d38a0	
+mexFunction() at yprime.c:117 0x7fec157d3cec	
+mexRunMexFile() at 0x7fecc4ab3caa	
+0x7fecc4aac1a3	
+0x7fecc4aad345	
+Mfh_file::dispatch_fh_impl() at 0x7fecc3dac8a3	
+Mfh_file::dispatch_fh() at 0x7fecc3dad16e	
+
+With Eclipse attached to the MATLAB process sometimes stops at a SIGSEGV and then have to resume.
+I think this is due to Java sometimes generating and handling exceptions.
+https://uk.mathworks.com/help/matlab/matlab_external/debugging-on-linux-platforms.html recommends starting MATLAB without
+the Java Virtual Machine to debug mex files under Linux, but not sure what that does in the Matlab applications makes use
+of any functions which built upon Java.
+
+
+== Failed attempt to use Eclipse Oxygen to attach to MATLAB under Windows 10 ==
+
+Downloaded the following to Windows 10 to get Eclipse Oxygen as already used under Linux:
+https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/3a/eclipse-cpp-oxygen-3a-win32-x86_64.zip
+
+A Java 8 or newer JRE/JDK is required to run all Oxygen packages based on Eclipse 4.7, including running the Installer.
+The eclipse.ini shows this requires a 64-bit JVM.
+
+There is a Windows Offline (64-bit) jre-8u281-windows-x64.exe installer linked from
+https://java.com/en/download/windows_manual.jsp?host=java.com&locale=en-GB
+
+However, that requires a license from Oralce for non-commercial development.
+
+MATLAB R2018b already comes with a 64-bit JVM:
+C:\>"c:\Program Files\MATLAB\R2018b\sys\java\jre\win64\jre\bin\java.exe" -version
+java version "1.8.0_152"
+Java(TM) SE Runtime Environment (build 1.8.0_152-b16)
+Java HotSpot(TM) 64-Bit Server VM (build 25.152-b16, mixed mode)
+
+Adding c:\Program Files\MATLAB\R2018b\sys\java\jre\win64\jre\bin to path allowed Oxygen.3a Release (4.7.3a) to start.
+
+Attempted to create a "C/C++ Attach to Application" in debug configuration in Eclipse which needed gdb.
+
+Set the PATH to find the gdb 7.11.1 in C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\bin
+but gdb termined before could select the process to attach to, which happened even if C/C++ application was blank.
+
+Using Process Monitor found gdb.exe was spawning gdborig.exe which think in for Phyton support for formatting output.
+
+Tried setting the following, as suggested by https://sourceforge.net/p/mingw-w64/discussion/723798/thread/4a8a9ed5/ 
+to allow gdborig.exe to work:
+set PATH=%PATH%;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\bin
+set PATH=%PATH%;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\bin
+set PYTHONHOME=C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\opt
+set PYTHONPATH=C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\share\gcc-6.3.0\python;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\opt\lib\python2.7\lib-dynload;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\opt\lib\python2.7\site-packages;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\opt\lib\python2.7
+
+Which allowed gdborig -version to work from a command shell but still crashed when attempted to use "Attach to process".
+
+The gddorig.exe crash resulted in an Windows Error report but not obvious what the issue was.
+
+
+== Successful use of Eclipse Oxygen with GDB 7.5.50 ==
+
+Looked for pre-compiled GDB versions for Windows from other sources.
+https://gnutoolchains.com/mingw64/ has a link to https://sysprogs.com/getfile/514/mingw64-gcc9.1.0.exe
+which has a pre-built GDB 8.3 but Windows Smart screen blocked.
+
+https://sysprogs.com/getfile/507/mingw64-gcc8.1.0.exe was also blocked by Windows Smart screen.
+
+https://sysprogs.com/getfile/31/mingw64-gcc4.7.1.exe was allowed, which contains GDB 7.5.50
+
+Using the following was able to successfully create aa "C/C++ Attach to Application" debug configuration
+which could attach to MATLAB, set a breakpoint on mexFunction and debug the yprime mex example:
+set PATH=%PATH%;c:\Program Files\MATLAB\R2018b\sys\java\jre\win64\jre\bin
+set PATH=%PATH%;c:\SysGCC\MinGW64\bin
+C:\eclipse\eclipse-cpp-oxygen-3a-win32-x86_64\eclipse\eclipse.exe
+
+Note when the list of processes was displayed in Eclipse, MATLAB wasn't listed by name and had to find the PID from
+Windows task manager to determine the process to attach to.

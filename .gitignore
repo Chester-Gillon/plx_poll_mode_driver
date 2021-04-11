@@ -8,4 +8,5 @@ ipch/
 *.user
 /.metadata/
 /RemoteSystemsTempFiles/
+mex/
 
