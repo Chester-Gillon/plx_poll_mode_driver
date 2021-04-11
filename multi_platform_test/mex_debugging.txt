@@ -231,13 +231,15 @@ Using Process Monitor found gdb.exe was spawning gdborig.exe which think in for 
 Tried setting the following, as suggested by https://sourceforge.net/p/mingw-w64/discussion/723798/thread/4a8a9ed5/ 
 to allow gdborig.exe to work:
 set PATH=%PATH%;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\bin
-set PATH=%PATH%;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\bin
+set PATH=%PATH%;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\opt\bin
 set PYTHONHOME=C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\opt
 set PYTHONPATH=C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\share\gcc-6.3.0\python;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\opt\lib\python2.7\lib-dynload;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\opt\lib\python2.7\site-packages;c:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w64.instrset\opt\lib\python2.7
 
 Which allowed gdborig -version to work from a command shell but still crashed when attempted to use "Attach to process".
 
 The gddorig.exe crash resulted in an Windows Error report but not obvious what the issue was.
+
+The crash with the mingw CGB installed with MATLAB was repeated on a different Windows 10 PC with MATLAB R2020b.
 
 
 == Successful use of Eclipse Oxygen with GDB 7.5.50 ==
@@ -258,3 +260,8 @@ C:\eclipse\eclipse-cpp-oxygen-3a-win32-x86_64\eclipse\eclipse.exe
 
 Note when the list of processes was displayed in Eclipse, MATLAB wasn't listed by name and had to find the PID from
 Windows task manager to determine the process to attach to.
+
+And repeated on a different Windows 10 PC with MATLAB 2020b:
+set PATH=%PATH%;c:\Program Files\MATLAB\R2020b\sys\java\jre\win64\jre\bin
+set PATH=%PATH%;c:\SysGCC\MinGW64\bin
+C:\eclipse\eclipse-cpp-oxygen-3a-win32-x86_64\eclipse\eclipse.exe
