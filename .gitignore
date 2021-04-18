@@ -9,4 +9,6 @@ ipch/
 /.metadata/
 /RemoteSystemsTempFiles/
 mex/
-
+*.pdb
+*.mexa64
+*.mexw64

@@ -265,3 +265,49 @@ And repeated on a different Windows 10 PC with MATLAB 2020b:
 set PATH=%PATH%;c:\Program Files\MATLAB\R2020b\sys\java\jre\win64\jre\bin
 set PATH=%PATH%;c:\SysGCC\MinGW64\bin
 C:\eclipse\eclipse-cpp-oxygen-3a-win32-x86_64\eclipse\eclipse.exe
+
+
+https://uk.mathworks.com/matlabcentral/answers/241291-how-to-debug-mex-file-compiled-with-mingw64-and-g-flags
+suggests a different GDB version could be used
+https://sourceforge.net/projects/tdm-gcc/files/GDB/ has downloads with GDB.
+
+Haven't tried those versions of GDB.
+
+
+== Successful use of Visual Studio to debug mex files compiled with MinGW64 6.3.0 ==
+
+The compile_mex.m function is used to compile MEX file with the MinGW64 6.3.0 installed as an add-on with MATLAB 2021a,
+and then run the cv2pdb utility to generate the .PDB file with the debug information understood by Visual Studio.
+
+The multi_platform_test.c source file also demonstrates using POSIX functions to allow common source for
+Windows and Linux by use of:
+- clock_getres()
+- clock_gettime()
+- opendir()
+- readdir()
+
+The only platform specific conditional compilation is to use GetFullPathName() or realpath(), since
+realpath() isn't a POSIX function.
+
+For debugging used either:
+- Visual Studio 2010 Express
+- Visual Studio Comumnity 2019
+
+One difference between the Visual Studio versions is that only Visual Studio 2019 hits Function Breakpoints;
+in Visual Studio 2010 attempting to get a function breakpoint in a MEX file results in Visual Studio reporting
+that the function can't be found.
+
+Setting a breakpoint in a source file works in both versions of Visual Studio.
+
+A difference between MATLAB versions is the behaviour of if Visual Studio can debug the MEX file if the MEX file
+is already loaded when Visual Studio when attach to the MATLAB process.
+
+The following MATLAB versions allow Visual Studio 2010 Express or Visual Studio Community 2019 to debug if the MEX file
+is already loaded when attach to MATLAB:
+- R2016b, R2017a, R2017b
+
+For the following MATLAB versions if the MEX file is already loaded when attach to MATLAB then are unable to debug
+the MEX file; no breakpoints are hit any for unknown reasons the *.mexw64 file is *not* listed in the loaded list
+of modules by Visual Studio. In this situation, using clear mex and then re-running the mex file which is loaded
+then allows Visual Studio 2010 Express or Visual Studio Community 2019 to debug the MEX file:
+- R2018a, R2018b, R2021a
