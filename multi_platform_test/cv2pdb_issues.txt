@@ -1,0 +1,161 @@
+== cv2pdb 0.48 fails to compile under Visual Studio 2010 due to using C++11 ==
+
+Cutting the problematic list initialisation code example from dwarf2pdb.cpp into a standalone example:
+#define DW_REG_CFA 257
+
+struct Location
+{
+    enum Type
+    {
+        Invalid, // Failed to evaluate the location expression
+        InReg,   // In register (reg)
+        Abs,     // Absolute address (off)
+        RegRel   // Register-relative address ($reg + off)
+    };
+
+    Type type;
+    int reg;
+    int off;
+
+    bool is_invalid() const { return type == Invalid; }
+    bool is_inreg() const { return type == InReg; }
+    bool is_abs() const { return type == Abs; }
+    bool is_regrel() const { return type == RegRel; }
+};
+
+int main(void)
+{
+    Location cfa;
+
+    cfa = { Location::RegRel, DW_REG_CFA, 0 };
+
+    return cfa.type;
+}
+
+Attempt to compile with gcc-arm-none-eabi-9-2019-q4-major using -std=c++03 :
+../main.cpp: In function 'int main()':
+../main.cpp:67:45: warning: extended initializer lists only available with '-std=c++11' or '-std=gnu++11'
+   67 |     cfa = { Location::RegRel, DW_REG_CFA, 0 };
+      |                                             ^
+../main.cpp:67:45: warning: extended initializer lists only available with '-std=c++11' or '-std=gnu++11'
+
+No warning when use -std=c++11 
+
+https://en.cppreference.com/w/cpp/language/list_initialization which says from C++11
+
+cv2pdb 0.38 has the same code.
+
+
+== cv2pdb_vs12.sln was created in Visual Studio 2013 ==
+
+Opened cv2pdb_vs12.sln in Microsoft Visual Studio 2013 for Windows Desktop Version 12.0.40629.00 Update 5
+
+No conversion was required.
+Build had some warnings, but no errors:
+Restoring NuGet packages...
+To prevent NuGet from restoring packages during build, open the Visual Studio Options dialog, click on the Package Manager node and uncheck 'Allow NuGet to download missing packages during build.'
+NuGet Package restore failed for project cv2pdb: Unable to find version '1.16.30' of package 'Microsoft.VisualStudio.Setup.Configuration.Native'..
+NuGet Package restore failed for project dumplines: Unable to find version '1.16.30' of package 'Microsoft.VisualStudio.Setup.Configuration.Native'..
+NuGet package restore failed.
+1>------ Rebuild All started: Project: cv2pdb, Configuration: Release Win32 ------
+1>  Assembling cvt80to64.asm...
+1>  cv2pdb.cpp
+1>  cvutil.cpp
+1>  demangle.cpp
+1>  dwarf2pdb.cpp
+1>dwarf2pdb.cpp(816): warning C4244: '=' : conversion from 'uint64_t' to 'unsigned long', possible loss of data
+1>dwarf2pdb.cpp(817): warning C4244: '=' : conversion from 'uint64_t' to 'unsigned long', possible loss of data
+1>dwarf2pdb.cpp(1520): warning C4244: '=' : conversion from 'uint64_t' to 'unsigned long', possible loss of data
+1>dwarf2pdb.cpp(1605): warning C4244: '-=' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
+1>dwarf2pdb.cpp(1650): warning C4244: '=' : conversion from 'unsigned __int64' to 'int', possible loss of data
+1>  dwarflines.cpp
+1>dwarflines.cpp(225): warning C4244: '=' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
+1>dwarflines.cpp(291): warning C4244: 'initializing' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
+1>  main.cpp
+1>  mspdb.cpp
+1>  PEImage.cpp
+1>PEImage.cpp(234): warning C4018: '>=' : signed/unsigned mismatch
+1>PEImage.cpp(715): warning C4018: '<' : signed/unsigned mismatch
+1>PEImage.cpp(747): warning C4244: '-=' : conversion from 'ULONGLONG' to 'unsigned int', possible loss of data
+1>  readDwarf.cpp
+1>readDwarf.cpp(466): warning C4244: '=' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
+1>readDwarf.cpp(481): warning C4244: '=' : conversion from 'unsigned __int64' to 'unsigned long', possible loss of data
+1>  symutil.cpp
+1>  Generating code
+1>  Finished generating code
+1>  cv2pdb.vcxproj -> C:\Users\mr_halfword\cv2pdb\src\..\bin\Release\cv2pdb.exe
+========== Rebuild All: 1 succeeded, 0 failed, 0 skipped ==========
+
+Which is set to use the Platform Toolset of "Visual Studio 2013 - Windows XP (v120_xp)"
+
+
+== cv2pdb v0.38 issues ==
+
+The multi_platform_test mex file was compiled under MATLAB R2021a, using cv2pdb v0.38
+Visual Studio 2010 Express was used as the debugger.
+
+In the main function there is the following displayed for the locals:
+-		dimension_vol	0x0000000000080000	int *
+			CXX0030: Error: expression cannot be evaluated	
+-		dimension	{floats=0x00000037e0ffaba0 }	__noname
++		floats	0x00000037e0ffaba0	float [8]
+-		matrix_a	0x000002248d6b0080 {floats=0x000002248d6b0080 }	__noname *
++		floats	0x000002248d6b0080	float [8]
+
+Issues are:
+a. The volatile variable dimension_vol is incorrectly displayed with type "int *"
+b. The variables dimension and matrix_a are both incorrectly displayed with what is the typedef struct vec_t
+   in test_lib.c, rather than scalar_t and matrix_t from multi_platform_test.c
+   Note __noname as the type
+   
+In the get_test_data_size function there are the following displayed for the locals:
+-		data	{floats=0x00000037e0ffaa20 }	__noname
++		floats	0x00000037e0ffaa20	float [8]
+-		vec	{floats=0x00000037e0ffaa00 }	__noname
++		floats	0x00000037e0ffaa00	float [8]
+
+Issues is data is displayed as the typedef struct vec_t rather than data_t
+
+
+== cv2pdb v0.48 issues ==
+
+The multi_platform_test mex file was compiled under MATLAB R2021a, using cv2pdb v0.48
+Visual Studio 2010 Express was used as the debugger.
+
+In the main function there is the following displayed for the locals:
+-		dimension_vol	0x0000000000080000	int *
+			CXX0030: Error: expression cannot be evaluated	
+-		dimension	{matrix_size=524288 }	__noname
+		matrix_size	524288	unsigned __int64
+-		matrix_a	0x000002248d6b0080 {a=0x000002248d6b0080 b=0x000002248d6f0080 }	__noname *
++		a	0x000002248d6b0080	float [64]
++		b	0x000002248d6f0080	float [1024]
+
+Improvements compared to cv2pdb v0.38:
+a. The dimension local variable is now displayed correctly.
+b. The matrix_a local variable now has the a and b fields displayed, rather than the wrong typedef.
+
+Issues are:
+a. The volatile variable dimension_vol is incorrectly displayed with type "int *"
+   Unchanged from cv2pdb v0.38
+b. For the typedef struct matrix_t the fields a and b are two dimensional arrays, but the debugger is
+   displaying then as a single dimension.
+   
+ 
+In the get_test_data_size function there are the following displayed for the locals:
+
++		data	{a=1 b=0 c=7.6543102 ...}	__noname
+-		vec	{floats=0x00000037e0ffaa00 }	__noname
+-		floats	0x00000037e0ffaa00	float [8]
+		[0]	0.00000000	float
+		[1]	0.00000000	float
+		[2]	0.00000000	float
+		[3]	0.00000000	float
+		[4]	0.00000000	float
+		[5]	0.00000000	float
+		[6]	0.00000000	float
+		[7]	7.6543102	float
+		
+Improvment compared to cv2pdb v0.38 is that the data and vec local variables are displayed with the correct fields,
+albeit __noname is still reported as the type in the debugger.
+

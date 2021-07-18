@@ -5,8 +5,8 @@ function compile_mex
         % Convert the debug information inserted by the MingGW into the mex
         % file into PDB format to allow debugging using Visual Studio
         % elf_to_pdb_debug = fullfile(getenv('USERPROFILE'),'Downloads\cv2pdb');
-        % elf_to_pdb_debug = fullfile(getenv('USERPROFILE'),'cv2pdb\bin\Release\cv2pdb');
-        elf_to_pdb_debug = fullfile(getenv('USERPROFILE'),'cv2pdb-0.38\bin\Release\cv2pdb');
+        elf_to_pdb_debug = fullfile(getenv('USERPROFILE'),'cv2pdb\bin\Release\cv2pdb');
+        % elf_to_pdb_debug = fullfile(getenv('USERPROFILE'),'cv2pdb-0.38\bin\Release\cv2pdb');
         system ([elf_to_pdb_debug ' multi_platform_test.mexw64']);
     else
         mex -g multi_platform_test.c -lrt
