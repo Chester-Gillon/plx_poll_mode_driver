@@ -13,6 +13,20 @@
 #include <mex.h>
 #endif
 
+#include "test_lib.h"
+
+typedef struct
+{
+    size_t matrix_size;
+} scalar_t;
+
+typedef struct
+{
+    float a[64][1024];
+    float b[1024][64];
+} matrix_t;
+
+matrix_t global_matrix = {.b[0][0]=1.234};
 
 int main (int argc, char *argv[])
 {
@@ -22,6 +36,11 @@ int main (int argc, char *argv[])
     struct timespec now;
     int rc;
     bool expired;
+    volatile scalar_t dimension_vol = {.matrix_size = sizeof(matrix_t)};
+    scalar_t dimension = {.matrix_size = sizeof(matrix_t)};
+    matrix_t *const matrix_a = calloc(dimension.matrix_size + get_test_data_size (),1);
+    matrix_a->a[0][0] = 1024;
+    matrix_a->b[1023][63] = 1025;
 
     rc = clock_getres (CLOCK_REALTIME, &res);
     if (rc == 0)
@@ -91,6 +110,8 @@ int main (int argc, char *argv[])
     {
         printf ("realpath failed");
     }
+    
+    free (matrix_a);
 
     return EXIT_SUCCESS;
 }
