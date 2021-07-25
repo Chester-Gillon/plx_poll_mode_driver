@@ -32,6 +32,7 @@ int main(void)
     return cfa.type;
 }
 
+
 Attempt to compile with gcc-arm-none-eabi-9-2019-q4-major using -std=c++03 :
 ../main.cpp: In function 'int main()':
 ../main.cpp:67:45: warning: extended initializer lists only available with '-std=c++11' or '-std=gnu++11'
@@ -159,3 +160,95 @@ In the get_test_data_size function there are the following displayed for the loc
 Improvment compared to cv2pdb v0.38 is that the data and vec local variables are displayed with the correct fields,
 albeit __noname is still reported as the type in the debugger.
 
+
+== Impact on the mspdb*.dll version loaded by cv2pdb ==
+
+cv2pdb uses a mspdb*.dll from the Visual Studio installation to create the pdb files, where it can load a number of different
+possible versions of the dll attempting to find the newest installed on the PC in the following list:
+mspdb140.dll : Visual Studio 2015
+mspdb120.dll : Visual Studio 2013
+mspdb110.dll : Visual Studio 2012
+mspdb100.dll : Visual Studio 2010
+mspdb80.dll  : Visual Studio 2005
+
+The cv2pdb -deb option makes it report which mspdb*.dll file it used to create a pdb file.
+
+=== Using mspdb140.dll ===
+
+Starting with an unmodified cv2pdb v0.48 reports the following dll being used:
+>> compile_mex
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+Loaded PDB helper DLL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\mspdb140.dll 
+Loaded PDB helper DLL: C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\mspdb140.dll 
+
+Debugging the mex files with Visual Studio 2010 Express:
+a. For unlogger log_data_t displayed with expected number of fields 
+   (albeit as above 2D arrays displayed with only one dimension)
+b. For multi_platform_test the different struct typedefs are displayed with the expected fields
+
+=== Using mspdb120.dll ===
+
+Modified cv2pdb to only attempt to load mspdb120.dll.
+
+Even though the "Visual Studio 2013 for Windows Desktop" IDE is installed, cv2pdb was unable to locate mspdb120.dll.
+Therefore, copied mspdb120.dll into the same directory as cv2pdb for this test:
+C:\Users\mr_halfword\cv2pdb\bin\Release>copy "C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\mspdb120.dll" .
+
+>> compile_mex
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+Loaded PDB helper DLL: C:\Users\mr_halfword\cv2pdb\bin\Release\mspdb120.dll 
+Loaded PDB helper DLL: C:\Users\mr_halfword\cv2pdb\bin\Release\mspdb120.dll 
+
+Debugging the mex files with Visual Studio 2010 Express:
+a. For unlogger behaved the same as when mspdb140.dll was used.
+b. For multi_platform_test behaved the same as when mspdb140.dll was used.
+
+=== Using mspdb110.dll ===
+
+Modified cv2pdb to only attempt to load mspdb110.dll.
+
+Since the Visual Studio 2012 IDE isn't installed, and only command line tools, had to copy the mspdb110.dll and it's
+dependencies to the directory containing cv2pdb.exe:
+C:\Users\mr_halfword\cv2pdb\bin\Release>copy "C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE\mspdb110.dll" .
+C:\Users\mr_halfword\cv2pdb\bin\Release>copy "C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE\mspdbsrv.exe" .
+C:\Users\mr_halfword\cv2pdb\bin\Release>copy "C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE\mspdbcore.dll"
+C:\Users\mr_halfword\cv2pdb\bin\Release>copy "C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE\msobj110.dll"
+
+Where the dependencies were found by using Process Monitor to find which Load Image attempts failed.
+>> compile_mex
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+Loaded PDB helper DLL: C:\Users\mr_halfword\cv2pdb\bin\Release\mspdb110.dll 
+Loaded PDB helper DLL: C:\Users\mr_halfword\cv2pdb\bin\Release\mspdb110.dll 
+
+Debugging the mex files with Visual Studio 2010 Express:
+a. For unlogger behaved the same as when mspdb140.dll was used.
+b. For multi_platform_test behaved the same as when mspdb140.dll was used.
+
+=== Using mspdb100.dll ===
+
+Used an unmodified cvpdb but copied the mspdb100.dll and it's dependencies into the same directory as the cvpdb.exe :
+C:\Users\mr_halfword\cv2pdb\bin\Release>copy "C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\mspdb100.dll"
+C:\Users\mr_halfword\cv2pdb\bin\Release>copy "C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\mspdbsrv.exe"
+C:\Users\mr_halfword\cv2pdb\bin\Release>copy "C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\mspdbcore.dll"
+C:\Users\mr_halfword\cv2pdb\bin\Release>copy "C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\msobj100.dll"
+
+>> compile_mex
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+Loaded PDB helper DLL: C:\Users\mr_halfword\cv2pdb\bin\Release\mspdb100.dll 
+Loaded PDB helper DLL: C:\Users\mr_halfword\cv2pdb\bin\Release\mspdb100.dll 
+
+Debugging the mex files with Visual Studio 2010 Express:
+a. For unlogger log_data_t is displayed as if type mxComplexSingle
+b. For multi_platform_test all structs are displayed as if they were type vec_t
