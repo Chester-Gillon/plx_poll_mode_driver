@@ -11,7 +11,7 @@ function compile_mex
         system ([elf_to_pdb_debug ' -deb multi_platform_test.mexw64']);
         system ([elf_to_pdb_debug ' -deb unlogger.mexw64']);
     else
-        mex -g multi_platform_test.c -lrt
+        mex -g multi_platform_test.c test_lib.c -lrt
         mex -g unlogger.c -R2018a
     end
 end
