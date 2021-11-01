@@ -237,9 +237,15 @@ set PYTHONPATH=C:\ProgramData\MATLAB\SupportPackages\R2018b\3P.instrset\mingw_w6
 
 Which allowed gdborig -version to work from a command shell but still crashed when attempted to use "Attach to process".
 
-The gddorig.exe crash resulted in an Windows Error report but not obvious what the issue was.
+The gdborig.exe crash resulted in an Windows Error report but not obvious what the issue was.
 
-The crash with the mingw CGB installed with MATLAB was repeated on a different Windows 10 PC with MATLAB R2020b.
+The crash with the mingw GDB installed with MATLAB was repeated on a different Windows 10 PC with MATLAB R2020b.
+
+
+Subsequently found, on two Windows 10 PC, that the gdb 7.11.1 from the MinGW-64 6.3.0 compiler installed by Matlab
+can be used to debug a non-mex program compiled with the MinGW-64 6.3.0 compiler, the differences being:
+a. Compiled as a standalone program rather than a mex file (used the switch_test program).
+b. In Eclipse use a "C/C++ Application" debug configuration rather than a "C/C++ Attach To Application" debug configuration.
 
 
 == Successful use of Eclipse Oxygen with GDB 7.5.50 ==
