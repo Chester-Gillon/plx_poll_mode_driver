@@ -2,14 +2,18 @@
 
 # Compile the source in this project
 mkdir -p Debug
-gcc multi_platform_test.c -g -o Debug/multi_platform_test -l rt
-i686-w64-mingw32-gcc multi_platform_test.c -g -o Debug/multi_platform_test.exe -static -l pthread
+gcc test_lib.c multi_platform_test.c -g -o Debug/multi_platform_test -l rt
+i686-w64-mingw32-gcc test_lib.c multi_platform_test.c -g -o Debug/multi_platform_test.exe -static -l pthread
 
 # Compile libxml2 examples.
 # For the Windows executables static libraries are used for those from mingw, which are not standard Windows DLLs.
 # LIBXML_STATIC is required to avoid getting unresolved errors for xmlFree (a global function pointer rather an actual function)
 # when linking against the static libxml2 library.
 examples_root=/usr/share/doc/libxml2-devel-2.7.6/examples
+if [ ! -d ${examples_root} ]
+then
+    examples_root=/usr/share/doc/libxml2-doc/examples
+fi
 for example_name in io1 io2 reader1 reader2 reader3 reader4 testWriter tree1 tree2 xpath1 xpath2
 do
     gcc ${examples_root}/${example_name}.c -I /usr/include/libxml2 -g -o Debug/${example_name} -l xml2

@@ -337,3 +337,14 @@ warning: mingw32-libxml2-static-2.9.3-1.el7.noarch.rpm: Header V3 RSA/SHA256 Sig
 Preparing...                ########################################### [100%]
    1:mingw32-libxml2-static ########################################### [100%]
 
+
+== Differences in Ubuntu ==
+
+On a Ubuntu 18.04.6 LTS installation was able to install the following packages:
+$ sudo apt install gcc-mingw-w64-i686
+$ sudo apt install libxml2-dev
+$ sudo apt install win-iconv-mingw-w64-dev
+
+This left the libxml2 examples unable to compile under mingw32 due to missing support for libxml2.
+Also, no static version of iconv
+
