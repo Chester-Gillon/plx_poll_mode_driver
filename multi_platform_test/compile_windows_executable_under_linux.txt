@@ -344,6 +344,7 @@ On a Ubuntu 18.04.6 LTS installation was able to install the following packages:
 $ sudo apt install gcc-mingw-w64-i686
 $ sudo apt install libxml2-dev
 $ sudo apt install win-iconv-mingw-w64-dev
+$ sudo apt install g++-mingw-w64-i686
 
 This left the libxml2 examples unable to compile under mingw32 due to missing support for libxml2.
 Also, no static version of iconv
