@@ -14,6 +14,10 @@ if [ ! -d ${examples_root} ]
 then
     examples_root=/usr/share/doc/libxml2-doc/examples
 fi
+if [ ! -d ${examples_root} ]
+then
+    examples_root=/usr/share/doc/libxml2-devel/examples
+fi
 for example_name in io1 io2 reader1 reader2 reader3 reader4 testWriter tree1 tree2 xpath1 xpath2
 do
     gcc ${examples_root}/${example_name}.c -I /usr/include/libxml2 -g -o Debug/${example_name} -l xml2

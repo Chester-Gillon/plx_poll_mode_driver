@@ -349,3 +349,14 @@ $ sudo apt install g++-mingw-w64-i686
 This left the libxml2 examples unable to compile under mingw32 due to missing support for libxml2.
 Also, no static version of iconv
 
+
+== Differences in AlmaLinux 8.6 ==
+
+On an AlmaLinux 8.6 installation was able to install the following packages:
+$ sudo yum install mingw32-gcc-c++
+$ sudo yum install mingw32-winpthreads-static
+$ sudo yum install libxml2-devel
+$ sudo yum install mingw32-win-iconv-static
+
+This left the libxml2 examples unable to compile under mingw32 due to missing support for libxml2.
+
