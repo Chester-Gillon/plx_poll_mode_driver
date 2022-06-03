@@ -11,11 +11,11 @@
 
 #include "test_lib.h"
 
-/* Create a realpath replacement macro for when compiling under mingw32
+/* Create a realpath replacement macro for when compiling under mingw
  * Based upon https://stackoverflow.com/questions/45124869/cross-platform-alternative-to-this-realpath-definition
  */
 #ifdef WIN32
-    #define realpath(N,R) _fullpath((R),(N),_MAX_PATH)
+    #define realpath(N,R) _fullpath((R),(N),PATH_MAX)
 #endif
 
 typedef struct
