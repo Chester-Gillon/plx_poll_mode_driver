@@ -5,15 +5,18 @@
 #include <time.h>
 #include <dirent.h>
 
-#ifdef _WIN32
-#include <fileapi.h>
-#endif
-
 #ifdef MATLAB_MEX_FILE
 #include <mex.h>
 #endif
 
 #include "test_lib.h"
+
+/* Create a realpath replacement macro for when compiling under mingw32
+ * Based upon https://stackoverflow.com/questions/45124869/cross-platform-alternative-to-this-realpath-definition
+ */
+#ifdef WIN32
+    #define realpath(N,R) _fullpath((R),(N),_MAX_PATH)
+#endif
 
 typedef struct
 {
@@ -84,12 +87,7 @@ int main (int argc, char *argv[])
     const char *const current_dir = ".";
     char resolved_path_buffer[PATH_MAX];
     char *resolved_path;
-#if defined(_WIN32)
-    const DWORD status = GetFullPathName (current_dir, sizeof (resolved_path_buffer), resolved_path_buffer, NULL);
-    resolved_path = (status != 0) ? resolved_path_buffer : NULL;
-#else
     resolved_path = realpath (current_dir, resolved_path_buffer);
-#endif
     if (resolved_path != NULL)
     {
         printf ("Current directory is \"%s\"\n", resolved_path);
