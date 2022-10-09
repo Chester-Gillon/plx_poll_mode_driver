@@ -1,0 +1,455 @@
+1. Power on with the original eeprom contents
+=============================================
+
+[root@sandy-centos mr_halfword]# lspci -vvv -nn -s 05:04.0
+05:04.0 Bridge [0680]: Sealevel Systems Inc Device [135e:e205] (rev aa)
+	Subsystem: Sealevel Systems Inc Device [135e:e205]
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+	Interrupt: pin A routed to IRQ 4
+	Region 0: Memory at fe500000 (32-bit, non-prefetchable) [disabled] [size=512]
+	Region 2: I/O ports at e010 [disabled] [size=16]
+	Region 3: I/O ports at e000 [disabled] [size=16]
+	Capabilities: [40] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold-)
+		Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [48] #00 [0000]
+	Capabilities: [4c] Vital Product Data
+		Unknown small resource type 0b, will not decode more.
+
+[root@sandy-centos mr_halfword]# export PLX_SDK_DIR=/home/mr_halfword/GscApi-1.6.10/gsc_api/PlxSdk
+[root@sandy-centos mr_halfword]# ~mr_halfword/GscApi-1.6.10/gsc_api/PlxSdk/Bin/Plx_load 9056
+
+
+   *****************************************************************
+   * NOTES:                                                        *
+   *                                                               *
+   *  You must be superuser, logged in as root, or have sufficient *
+   *  rights to install modules or this script will not work.      *
+   *                                                               *
+   *  A warning regarding 'kernel tainting' is normal.  This is    *
+   *  because the PLX driver is marked with a 'Proprietary'        *
+   *  license tag, not GPL.  For more information, please refer    *
+   *  to:                                                          *
+   *        http://www.tux.org/lkml/#export-tainted                *
+   *****************************************************************
+
+Installing module (Plx9056.ko)....
+
+Getting Module major number..... Ok (MajorID = 247)
+Creating device node path....... Ok (/dev/plx)
+Creating device nodes........... Ok (/dev/plx/Plx9056)
+
+Module load complete.
+
+
+[root@sandy-centos mr_halfword]# ~mr_halfword/GscApi-1.6.10/buildGsc/PlxSdk/Linux/Samples/PlxCm/PlxCm 
+Searching for devices...
+
+
+    # Bs Sl Fn Pt Dev  Ven  Chip Rv I2C Description
+   ---------------------------------------------------------------------------
+==> 0 05 04 00 -- E205 135E 9056 BA --  PLX PCI <==> Local Bus bridge
+
+PLX Console Monitor, v2.10 [Apr  4 2020]
+Copyright (c) PLX Technology, Inc.
+
+>pcr
+ 000: e205135e  Device ID | Vendor ID
+ 004: 02b00007  Status | Command
+ 008: 068000aa  Base Class | Sub Class | Interface | Revision ID
+ 00c: 00002010  BIST|Header Type|Latency Timer|Cache Line Size
+ 010: fe500000  PCI Base Address 0
+ 014: 00000000  PCI Base Address 1
+ 018: 0000e011  PCI Base Address 2
+ 01c: 0000e001  PCI Base Address 3
+ 020: 00000000  PCI Base Address 4
+ 024: 00000000  PCI Base Address 5
+ 028: 00000000  Cardbus CIS Pointer
+ 02c: e205135e  Subsystem Device ID | Subsystem Vendor ID
+ 030: 00000000  PCI Base Address-to-Local Expansion ROM
+ 034: 00000040  Next Capability Pointer
+ 038: 00000000  Reserved
+ 03c: 00000104  Max_Lat | Min_Grant| Interrupt Pin | Interrupt Line
+ 040: 48014801  Power Management Capability | Next Item Pointer | Capability ID
+ 044: 00000000  PM Cap: PM Data | Bridge Ext | PM Control/Status
+ 048: 00004c00  Hot Swap Capability | Next Item Ptr | Capability ID
+ 04c: 80000003  VPD Capability | VPD Address | Next Item Ptr | Capability ID
+ 050: e205135e  VPD Data
+>lcr
+ 000: fffffff1  Range for PCI-to-Local Address Space 0
+ 004: 03000001  Local Base Address (Remap) for PCI-to-Local Space 0
+ 008: 09210007  Mode/DMA Arbitration
+ 00c: 20308400  Reserved|EEPROM Write Prot|Misc Ctrl|Endian Descriptor
+ 010: 00000000  Range for PCI-to-Local Expansion ROM
+ 014: 00000000  Local Base Address for PCI-to-Local Expansion ROM and BREQ
+ 018: 42000300  Local Bus Region Descriptor (Space 0) for PCI-to-Local Access
+ 01c: 00000000  Range for Direct Master-to-PCI
+ 020: 60000000  Local Base Address for Direct Master-to-PCI Memory
+ 024: 50000000  Local Base Address for Direct Master-to-PCI IO/CFG
+ 028: 00000000  PCI Base Address for Direct Master-to-PCI
+ 02c: 00000000  PCI Configuration Address for Direct Master-to-PCI IO/CFG
+ 0f0: fffffff1  Range for PCI-to-Local Address Space 1
+ 0f4: 03100001  Local Base Address (Remap) for PCI-to-Local Space 1
+ 0f8: 00000000  Local Bus Region Descriptor (Space 1) for PCI-to-Local Access
+ 0fc: 00000000  PCI Base Dual Address (Remap) for Direct Master-to-PCI
+ 100: 00000000  PCI Arbiter Control
+ 104: 00000000  PCI Abort Address
+>eep
+ 000: e205135e  Device ID | Vendor ID
+ 004: 068000aa  Base Class | Sub Class | Interface | Revision ID
+ 008: 00000100  Max_Lat | Min_Grant | Interrupt Pin | Interrupt Line
+ 00c: 00000000  Mailbox 0
+ 010: 00000000  Mailbox 1
+ 014: fffffff1  Range for PCI-to-Local Address Space 0
+ 018: 03000001  Local Base Address (Remap) for PCI-to-Local Space 0
+ 01c: 09210007  Local Mode/DMA Arbitration
+ 020: 20308400  VPD Boundary | Big/Little Endian Descriptor
+ 024: 00000000  Range for PCI-to-Local Expansion ROM
+ 028: 00000000  Local Base Address for PCI-to-Local Expansion ROM and BREQ
+ 02c: 42000300  Local Bus Region Descriptor (Space 0) for PCI-to-Local Access
+ 030: 00000000  Range for Direct Master-to-PCI
+ 034: 60000000  Local Base Address for Direct Master-to-PCI Memory
+ 038: 50000000  Local Base Address for Direct Master-to-PCI IO/CFG
+ 03c: 00000000  PCI Base Address for Direct Master-to-PCI
+ 040: 00000000  PCI Configuration Address for Direct Master-to-PCI IO/CFG
+ 044: e205135e  Subsystem Device ID | Subsystem Vendor ID
+ 048: fffffff1  Range for PCI-to-Local Address Space 1
+ 04c: 03100001  Local Base Address (Remap) for PCI-to-Local Space 1
+ 050: 00000000  Local Bus Region Descriptor (Space 1) for PCI-to-Local Access
+ 054: 00004c00  Hot Swap Control/Status | Next Item Pointer | Capability ID
+ 058: 00000000  PCI Arbiter Control                                   
+ 05c: 48010001  Power Management Capability | Next Item Pointer | Capability ID
+ 060: 00000000  Power Management Control/Status
+>dma
+ 080: 00000043  DMA Ch 0 Mode
+ 084: 00000000  DMA Ch 0 PCI Address
+ 088: 00000000  DMA Ch 0 Local Address
+ 08c: 00000000  DMA Ch 0 Transfer Byte Count
+ 090: 00000000  DMA Ch 0 Descriptor Pointer
+ 094: 00000043  DMA Ch 1 Mode
+ 098: 00000000  DMA Ch 1 PCI Address
+ 09c: 00000000  DMA Ch 1 Local Address
+ 0a0: 00000000  DMA Ch 1 Transfer Byte Count
+ 0a4: 00000000  DMA Ch 1 Descriptor Pointer
+ 0a8: 00001010  DMA Ch 1 Cmd/Stat | DMA Ch 0 Cmd/Stat
+ 0ac: 09210007  Mode | DMA Arbitration
+ 0b0: 00000000  DMA Channels Threshold
+ 0b4: 00000000  DMA Ch 0 PCI Dual Address (Upper 32 bits)
+ 0b8: 00000000  DMA Ch 1 PCI Dual Address (Upper 32 bits)
+
+[mr_halfword@sandy-centos GscApi-1.6.10]$ od -Ax -tx2 -w4 -v original_eeprom.dat
+000000 e205 135e
+000004 0680 00aa
+000008 0000 0100
+00000c 0000 0000
+000010 0000 0000
+000014 ffff fff1
+000018 0300 0001
+00001c 0921 0007
+000020 2030 8400
+000024 0000 0000
+000028 0000 0000
+00002c 4200 0300
+000030 0000 0000
+000034 6000 0000
+000038 5000 0000
+00003c 0000 0000
+000040 0000 0000
+000044 e205 135e
+000048 ffff fff1
+00004c 0310 0001
+000050 0000 0000
+000054 0000 4c00
+000058 0000 0000
+00005c 4801 0001
+000060 0000 0000
+000064
+
+
+2. Reprogrammed eeprom to change I/O ports to memory
+====================================================
+
+[mr_halfword@sandy-centos GscApi-1.6.10]$ buildGsc/PlxSdk/Linux/Samples/PlxEep/PlxEep -l io_to_mem_eeprom.dat 
+
+		     1. e205 135e  [9056 BA - b:05 s:04 f:00]
+		     0. Cancel
+
+	   Device selection --> 1
+
+
+Selected: e205 135e [b:05 s:04 f:00]
+Load EEPROM file..........Ok (100 B)
+Program EEPROM............Ok 
+ -- Complete (2.83 sec) --
+
+
+And after a power cycle enumerated as Memory regions:
+[mr_halfword@sandy-centos ~]$ lspci -vvv -d 135e:
+05:04.0 Bridge: Sealevel Systems Inc Device e205 (rev aa)
+	Subsystem: Sealevel Systems Inc Device e205
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+	Interrupt: pin A routed to IRQ 4
+	Region 0: Memory at fe502000 (32-bit, non-prefetchable) [disabled] [size=512]
+	Region 2: Memory at fe501000 (32-bit, non-prefetchable) [disabled] [size=16]
+	Region 3: Memory at fe500000 (32-bit, non-prefetchable) [disabled] [size=16]
+	Capabilities: <access denied>
+
+>lcr
+ 000: fffffff0  Range for PCI-to-Local Address Space 0
+ 004: 03000001  Local Base Address (Remap) for PCI-to-Local Space 0
+ 008: 09210007  Mode/DMA Arbitration
+ 00c: 20308400  Reserved|EEPROM Write Prot|Misc Ctrl|Endian Descriptor
+ 010: 00000000  Range for PCI-to-Local Expansion ROM
+ 014: 00000000  Local Base Address for PCI-to-Local Expansion ROM and BREQ
+ 018: 42000300  Local Bus Region Descriptor (Space 0) for PCI-to-Local Access
+ 01c: 00000000  Range for Direct Master-to-PCI
+ 020: 60000000  Local Base Address for Direct Master-to-PCI Memory
+ 024: 50000000  Local Base Address for Direct Master-to-PCI IO/CFG
+ 028: 00000000  PCI Base Address for Direct Master-to-PCI
+ 02c: 00000000  PCI Configuration Address for Direct Master-to-PCI IO/CFG
+ 0f0: fffffff0  Range for PCI-to-Local Address Space 1
+ 0f4: 03100001  Local Base Address (Remap) for PCI-to-Local Space 1
+ 0f8: 00000000  Local Bus Region Descriptor (Space 1) for PCI-to-Local Access
+ 0fc: 00000000  PCI Base Dual Address (Remap) for Direct Master-to-PCI
+ 100: 00000000  PCI Arbiter Control
+ 104: 00000000  PCI Abort Address
+>pcr
+ 000: e205135e  Device ID | Vendor ID
+ 004: 02b00006  Status | Command
+ 008: 068000aa  Base Class | Sub Class | Interface | Revision ID
+ 00c: 00002010  BIST|Header Type|Latency Timer|Cache Line Size
+ 010: fe502000  PCI Base Address 0
+ 014: 00000000  PCI Base Address 1
+ 018: fe501000  PCI Base Address 2
+ 01c: fe500000  PCI Base Address 3
+ 020: 00000000  PCI Base Address 4
+ 024: 00000000  PCI Base Address 5
+ 028: 00000000  Cardbus CIS Pointer
+ 02c: e205135e  Subsystem Device ID | Subsystem Vendor ID
+ 030: 00000000  PCI Base Address-to-Local Expansion ROM
+ 034: 00000040  Next Capability Pointer
+ 038: 00000000  Reserved
+ 03c: 00000104  Max_Lat | Min_Grant| Interrupt Pin | Interrupt Line
+ 040: 48014801  Power Management Capability | Next Item Pointer | Capability ID
+ 044: 00000000  PM Cap: PM Data | Bridge Ext | PM Control/Status
+ 048: 00004c00  Hot Swap Capability | Next Item Ptr | Capability ID
+ 04c: 00000003  VPD Capability | VPD Address | Next Item Ptr | Capability ID
+ 050: 00000000  VPD Data
+>eep
+ 000: e205135e  Device ID | Vendor ID
+ 004: 068000aa  Base Class | Sub Class | Interface | Revision ID
+ 008: 00000100  Max_Lat | Min_Grant | Interrupt Pin | Interrupt Line
+ 00c: 00000000  Mailbox 0
+ 010: 00000000  Mailbox 1
+ 014: fffffff0  Range for PCI-to-Local Address Space 0
+ 018: 03000001  Local Base Address (Remap) for PCI-to-Local Space 0
+ 01c: 09210007  Local Mode/DMA Arbitration
+ 020: 20308400  VPD Boundary | Big/Little Endian Descriptor
+ 024: 00000000  Range for PCI-to-Local Expansion ROM
+ 028: 00000000  Local Base Address for PCI-to-Local Expansion ROM and BREQ
+ 02c: 42000300  Local Bus Region Descriptor (Space 0) for PCI-to-Local Access
+ 030: 00000000  Range for Direct Master-to-PCI
+ 034: 60000000  Local Base Address for Direct Master-to-PCI Memory
+ 038: 50000000  Local Base Address for Direct Master-to-PCI IO/CFG
+ 03c: 00000000  PCI Base Address for Direct Master-to-PCI
+ 040: 00000000  PCI Configuration Address for Direct Master-to-PCI IO/CFG
+ 044: e205135e  Subsystem Device ID | Subsystem Vendor ID
+ 048: fffffff0  Range for PCI-to-Local Address Space 1
+ 04c: 03100001  Local Base Address (Remap) for PCI-to-Local Space 1
+ 050: 00000000  Local Bus Region Descriptor (Space 1) for PCI-to-Local Access
+ 054: 00004c00  Hot Swap Control/Status | Next Item Pointer | Capability ID
+ 058: 00000000  PCI Arbiter Control                                   
+ 05c: 48010001  Power Management Capability | Next Item Pointer | Capability ID
+ 060: 00000000  Power Management Control/Status
+>
+
+[mr_halfword@sandy-centos GscApi-1.6.10]$ od -Ax -tx2 -w4 -v io_to_mem_eeprom.dat 
+000000 e205 135e
+000004 0680 00aa
+000008 0000 0100
+00000c 0000 0000
+000010 0000 0000
+000014 ffff fff0
+000018 0300 0001
+00001c 0921 0007
+000020 2030 8400
+000024 0000 0000
+000028 0000 0000
+00002c 4200 0300
+000030 0000 0000
+000034 6000 0000
+000038 5000 0000
+00003c 0000 0000
+000040 0000 0000
+000044 e205 135e
+000048 ffff fff0
+00004c 0310 0001
+000050 0000 0000
+000054 0000 4c00
+000058 0000 0000
+00005c 4801 0001
+000060 0000 0000
+000064
+
+
+3. Reprogammed EEPROM to change PCI vendor and sub-system IDs to match XMC-SIO4BX
+=================================================================================
+
+[mr_halfword@sandy-centos GscApi-1.6.10]$ buildGsc/PlxSdk/Linux/Samples/PlxEep/PlxEep -l gsc_ids_io_to_mem_eeprom.dat 
+
+		     1. e205 135e  [9056 BA - b:05 s:04 f:00]
+		     0. Cancel
+
+	   Device selection --> 1
+
+
+Selected: e205 135e [b:05 s:04 f:00]
+Load EEPROM file..........Ok (100 B)
+Program EEPROM............Ok 
+ -- Complete (2.84 sec) --
+
+
+And after a power cycle enumerated as a PLX device with Memory regions:
+[root@sandy-centos mr_halfword]# lspci -vvv -nn -s 05:04.0
+05:04.0 Bridge [0680]: PLX Technology, Inc. PCI9056 32-bit 66MHz PCI <-> IOBus Bridge [10b5:9056] (rev aa)
+	Subsystem: PLX Technology, Inc. Device [10b5:3198]
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx-
+	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+	Interrupt: pin A routed to IRQ 4
+	Region 0: Memory at fe502000 (32-bit, non-prefetchable) [disabled] [size=512]
+	Region 2: Memory at fe501000 (32-bit, non-prefetchable) [disabled] [size=16]
+	Region 3: Memory at fe500000 (32-bit, non-prefetchable) [disabled] [size=16]
+	Capabilities: [40] Power Management version 1
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0+,D1-,D2-,D3hot+,D3cold-)
+		Status: D0 NoSoftRst- PME-Enable- DSel=0 DScale=0 PME-
+	Capabilities: [48] #00 [0000]
+	Capabilities: [4c] Vital Product Data
+		Unknown large resource type 35, will not decode more.
+
+
+The Plx9056.ko Kernel module built from the unmodifed GscApi-1.6.10 can now recognise the card
+(in previous tests the PlxSdk/Linux/Driver/Source.Plx9000/Driver.c had been modified to add the PCI IDs
+ of the Sealevel card):
+[root@sandy-centos mr_halfword]# export PLX_SDK_DIR=/home/mr_halfword/GscApi-1.6.10/gsc_api/PlxSdk
+[root@sandy-centos mr_halfword]# ~mr_halfword/GscApi-1.6.10/gsc_api/PlxSdk/Bin/Plx_load 9056
+
+
+   *****************************************************************
+   * NOTES:                                                        *
+   *                                                               *
+   *  You must be superuser, logged in as root, or have sufficient *
+   *  rights to install modules or this script will not work.      *
+   *                                                               *
+   *  A warning regarding 'kernel tainting' is normal.  This is    *
+   *  because the PLX driver is marked with a 'Proprietary'        *
+   *  license tag, not GPL.  For more information, please refer    *
+   *  to:                                                          *
+   *        http://www.tux.org/lkml/#export-tainted                *
+   *****************************************************************
+
+Installing module (Plx9056.ko)....
+
+Getting Module major number..... Ok (MajorID = 247)
+Creating device node path....... Ok (/dev/plx)
+Creating device nodes........... Ok (/dev/plx/Plx9056)
+
+Module load complete.
+
+
+[mr_halfword@sandy-centos ~]$ export PLX_SDK_DIR=/home/mr_halfword/GscApi-1.6.10/gsc_api/PlxSdk
+[mr_halfword@sandy-centos ~]$ ~/GscApi-1.6.10/buildGsc/PlxSdk/Linux/Samples/PlxCm/PlxCm 
+Searching for devices...
+
+
+    # Bs Sl Fn Pt Dev  Ven  Chip Rv I2C Description
+   ---------------------------------------------------------------------------
+==> 0 05 04 00 -- 9056 10B5 9056 BA --  PLX PCI <==> Local Bus bridge
+
+PLX Console Monitor, v2.10 [Apr 18 2020]
+Copyright (c) PLX Technology, Inc.
+
+>pcr
+ 000: 905610b5  Device ID | Vendor ID
+ 004: 02b00006  Status | Command
+ 008: 068000aa  Base Class | Sub Class | Interface | Revision ID
+ 00c: 00002010  BIST|Header Type|Latency Timer|Cache Line Size
+ 010: fe502000  PCI Base Address 0
+ 014: 00000000  PCI Base Address 1
+ 018: fe501000  PCI Base Address 2
+ 01c: fe500000  PCI Base Address 3
+ 020: 00000000  PCI Base Address 4
+ 024: 00000000  PCI Base Address 5
+ 028: 00000000  Cardbus CIS Pointer
+ 02c: 319810b5  Subsystem Device ID | Subsystem Vendor ID
+ 030: 00000000  PCI Base Address-to-Local Expansion ROM
+ 034: 00000040  Next Capability Pointer
+ 038: 00000000  Reserved
+ 03c: 00000104  Max_Lat | Min_Grant| Interrupt Pin | Interrupt Line
+ 040: 48014801  Power Management Capability | Next Item Pointer | Capability ID
+ 044: 00000000  PM Cap: PM Data | Bridge Ext | PM Control/Status
+ 048: 00004c00  Hot Swap Capability | Next Item Ptr | Capability ID
+ 04c: 00000003  VPD Capability | VPD Address | Next Item Ptr | Capability ID
+ 050: 00000000  VPD Data
+>lcr
+ 000: fffffff0  Range for PCI-to-Local Address Space 0
+ 004: 03000001  Local Base Address (Remap) for PCI-to-Local Space 0
+ 008: 09210007  Mode/DMA Arbitration
+ 00c: 20308400  Reserved|EEPROM Write Prot|Misc Ctrl|Endian Descriptor
+ 010: 00000000  Range for PCI-to-Local Expansion ROM
+ 014: 00000000  Local Base Address for PCI-to-Local Expansion ROM and BREQ
+ 018: 42000300  Local Bus Region Descriptor (Space 0) for PCI-to-Local Access
+ 01c: 00000000  Range for Direct Master-to-PCI
+ 020: 60000000  Local Base Address for Direct Master-to-PCI Memory
+ 024: 50000000  Local Base Address for Direct Master-to-PCI IO/CFG
+ 028: 00000000  PCI Base Address for Direct Master-to-PCI
+ 02c: 00000000  PCI Configuration Address for Direct Master-to-PCI IO/CFG
+ 0f0: fffffff0  Range for PCI-to-Local Address Space 1
+ 0f4: 03100001  Local Base Address (Remap) for PCI-to-Local Space 1
+ 0f8: 00000000  Local Bus Region Descriptor (Space 1) for PCI-to-Local Access
+ 0fc: 00000000  PCI Base Dual Address (Remap) for Direct Master-to-PCI
+ 100: 00000000  PCI Arbiter Control
+ 104: 00000000  PCI Abort Address
+>eep
+ 000: 905610b5  Device ID | Vendor ID
+ 004: 068000aa  Base Class | Sub Class | Interface | Revision ID
+ 008: 00000100  Max_Lat | Min_Grant | Interrupt Pin | Interrupt Line
+ 00c: 00000000  Mailbox 0
+ 010: 00000000  Mailbox 1
+ 014: fffffff0  Range for PCI-to-Local Address Space 0
+ 018: 03000001  Local Base Address (Remap) for PCI-to-Local Space 0
+ 01c: 09210007  Local Mode/DMA Arbitration
+ 020: 20308400  VPD Boundary | Big/Little Endian Descriptor
+ 024: 00000000  Range for PCI-to-Local Expansion ROM
+ 028: 00000000  Local Base Address for PCI-to-Local Expansion ROM and BREQ
+ 02c: 42000300  Local Bus Region Descriptor (Space 0) for PCI-to-Local Access
+ 030: 00000000  Range for Direct Master-to-PCI
+ 034: 60000000  Local Base Address for Direct Master-to-PCI Memory
+ 038: 50000000  Local Base Address for Direct Master-to-PCI IO/CFG
+ 03c: 00000000  PCI Base Address for Direct Master-to-PCI
+ 040: 00000000  PCI Configuration Address for Direct Master-to-PCI IO/CFG
+ 044: 319810b5  Subsystem Device ID | Subsystem Vendor ID
+ 048: fffffff0  Range for PCI-to-Local Address Space 1
+ 04c: 03100001  Local Base Address (Remap) for PCI-to-Local Space 1
+ 050: 00000000  Local Bus Region Descriptor (Space 1) for PCI-to-Local Access
+ 054: 00004c00  Hot Swap Control/Status | Next Item Pointer | Capability ID
+ 058: 00000000  PCI Arbiter Control                                   
+ 05c: 48010001  Power Management Capability | Next Item Pointer | Capability ID
+ 060: 00000000  Power Management Control/Status
+>dma
+ 080: 00000043  DMA Ch 0 Mode
+ 084: 00000000  DMA Ch 0 PCI Address
+ 088: 00000000  DMA Ch 0 Local Address
+ 08c: 00000000  DMA Ch 0 Transfer Byte Count
+ 090: 00000000  DMA Ch 0 Descriptor Pointer
+ 094: 00000043  DMA Ch 1 Mode
+ 098: 00000000  DMA Ch 1 PCI Address
+ 09c: 00000000  DMA Ch 1 Local Address
+ 0a0: 00000000  DMA Ch 1 Transfer Byte Count
+ 0a4: 00000000  DMA Ch 1 Descriptor Pointer
+ 0a8: 00001010  DMA Ch 1 Cmd/Stat | DMA Ch 0 Cmd/Stat
+ 0ac: 09210007  Mode | DMA Arbitration
+ 0b0: 00000000  DMA Channels Threshold
+ 0b4: 00000000  DMA Ch 0 PCI Dual Address (Upper 32 bits)
+ 0b8: 00000000  DMA Ch 1 PCI Dual Address (Upper 32 bits)
