@@ -1,0 +1,626 @@
+== Description ==
+
+This describes how to compile GscApi under AlmaLinux 8.6 with a 4.18.0-372.26.1.el8_6.x86_64 Kernel.
+
+
+== With GscAPi-1.6.6 user space code compiles, but Kernel module doesn't ==
+
+Unpack the source tar ball:
+[mr_halfword@haswell-alma ~]$ cd ~
+[mr_halfword@haswell-alma ~]$ tar -xzf ~/Downloads/GscApi-1.6.6.tar.gz
+
+
+Create a directory to perform the build:
+[mr_halfword@haswell-alma ~]$ cd ~/GscApi-1.6.6
+[mr_halfword@haswell-alma GscApi-1.6.6]$ mkdir buildGsc
+
+
+Configure the build, us9ing the defaults, and the GCC 8.5.0 installed with AlmaLinux 8.6:
+[mr_halfword@haswell-alma GscApi-1.6.6]$ cd buildGsc/
+[mr_halfword@haswell-alma buildGsc]$ ../configure
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking whether to enable debugging... no
+checking for g++... g++
+checking for C++ compiler default output... a.out
+checking whether the C++ compiler works... yes
+checking whether we are cross compiling... no
+checking for suffix of executables... 
+checking for suffix of object files... o
+checking whether we are using the GNU C++ compiler... yes
+checking whether g++ accepts -g... yes
+checking for style of include used by make... GNU
+checking dependency style of g++... gcc3
+checking for gcc... gcc
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ANSI C... none needed
+checking dependency style of gcc... gcc3
+checking how to run the C preprocessor... gcc -E
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether ln -s works... yes
+checking whether make sets $(MAKE)... (cached) yes
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking for ld used by GCC... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for /usr/bin/ld option to reload object files... -r
+checking for BSD-compatible nm... /usr/bin/nm -B
+checking for a sed that does not truncate output... /usr/bin/sed
+checking how to recognise dependent libraries... file_magic ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib )
+checking command to parse /usr/bin/nm -B output... ok
+checking for egrep... grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking dlfcn.h usability... yes
+checking dlfcn.h presence... yes
+checking for dlfcn.h... yes
+checking for file... /usr/bin/file
+checking for ranlib... ranlib
+checking for strip... strip
+checking for objdir... .libs
+checking for gcc option to produce PIC... -fPIC
+checking if gcc PIC flag -fPIC works... yes
+checking if gcc static flag -static works... no
+checking if gcc supports -c -o file.o... yes
+checking if gcc supports -c -o file.lo... yes
+checking if gcc supports -fno-rtti -fno-exceptions... yes
+checking whether the linker (/usr/bin/ld) supports shared libraries... yes
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking whether -lc should be explicitly linked in... no
+creating libtool
+checking for initscr in -lcurses... yes
+checking for pow in -lm... yes
+checking for pthread_create in -lpthread... yes
+checking for clock_gettime in -lrt... yes
+checking for ANSI C header files... (cached) yes
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking for fcntl.h... yes
+checking malloc.h usability... yes
+checking malloc.h presence... yes
+checking for malloc.h... yes
+checking for memory.h... (cached) yes
+checking for stdlib.h... (cached) yes
+checking for string.h... (cached) yes
+checking sys/ioctl.h usability... yes
+checking sys/ioctl.h presence... yes
+checking for sys/ioctl.h... yes
+checking for unistd.h... (cached) yes
+checking for an ANSI C-conforming const... yes
+checking for inline... inline
+checking for mode_t... yes
+checking for off_t... yes
+checking for size_t... yes
+checking for stdbool.h that conforms to C99... yes
+checking for _Bool... yes
+checking for working volatile... yes
+checking whether gcc needs -traditional... no
+checking for stdlib.h... (cached) yes
+checking for GNU libc compatible malloc... yes
+checking for working memcmp... yes
+checking for stdlib.h... (cached) yes
+checking for unistd.h... (cached) yes
+checking for getpagesize... yes
+checking for working mmap... yes
+checking for clock_gettime... yes
+checking for memset... yes
+checking for munmap... yes
+checking for pow... yes
+checking for strstr... yes
+configure: creating ./config.status
+config.status: creating Examples/ClockTest/Makefile
+config.status: creating Examples/DisplayBoards/Makefile
+config.status: creating Examples/InterruptTest/Makefile
+config.status: creating Examples/LoopBack/Makefile
+config.status: creating Examples/SyncLoopback/Makefile
+config.status: creating Examples/AnalogTest/Makefile
+config.status: creating Examples/AnalogMultiBoard/Makefile
+config.status: creating Examples/Makefile
+config.status: creating GscApi/Makefile
+config.status: creating doc/Makefile
+config.status: creating Makefile
+config.status: creating PlxSdk/Makefile
+config.status: creating PlxSdk/Bin/Makefile
+config.status: creating PlxSdk/Include/Makefile
+config.status: creating PlxSdk/Linux/Makefile
+config.status: creating PlxSdk/Linux/PlxApi/Makefile
+config.status: creating PlxSdk/Linux/Driver/Makefile
+config.status: creating PlxSdk/Linux/Makefiles/Makefile
+config.status: creating PlxSdk/Linux/Samples/ApiTest/Makefile
+config.status: creating PlxSdk/Linux/Samples/DSlave/Makefile
+config.status: creating PlxSdk/Linux/Samples/DSlave_BypassApi/Makefile
+config.status: creating PlxSdk/Linux/Samples/NT_DmaTest/Makefile
+config.status: creating PlxSdk/Linux/Samples/NT_LinkTest/Makefile
+config.status: creating PlxSdk/Linux/Samples/NT_Sample/Makefile
+config.status: creating PlxSdk/Linux/Samples/Makefile
+config.status: creating PlxSdk/Linux/Samples/PerfMonitor/Makefile
+config.status: creating PlxSdk/Linux/Samples/PlxCm/Makefile
+config.status: creating PlxSdk/Linux/Samples/PlxDma/Makefile
+config.status: creating PlxSdk/Linux/Samples/PlxDmaPerf/Makefile
+config.status: creating PlxSdk/Linux/Samples/PlxDmaSglNoApi/Makefile
+config.status: creating PlxSdk/Linux/Samples/PlxEep/Makefile
+config.status: creating PlxSdk/Linux/Samples/PlxNotification/Makefile
+config.status: creating PlxSdk/Linux/Samples/Shared/Makefile
+config.status: creating config.h
+config.status: executing depfiles commands
+
+
+Compile the user space libraries, without installing them in the system directories:
+[mr_halfword@haswell-alma buildGsc]$ make
+<<snip>>
+make[1]: Leaving directory '/home/mr_halfword/GscApi-1.6.6/buildGsc'
+
+
+Change to the driver directory and create a sym-link so the Makefile can be found by the builddriver script:
+[mr_halfword@haswell-alma buildGsc]$ cd ~/GscApi-1.6.6/PlxSdk/Linux/Driver/
+[mr_halfword@haswell-alma Driver]$ ln -s makefile Makefile
+
+
+Attempt to build the Kernel module for the 9056 chip, but fails with compile errors:
+[mr_halfword@haswell-alma Driver]$ PLX_SDK_DIR=~/GscApi-1.6.6/PlxSdk ./builddriver 9056
+Building: Plx9056
+
+- PLA: AlmaLinux release 8.6 (Sky Tiger)
+- KER: 4.18.0-372.26.1.el8_6.x86_64
+- INC: /lib/modules/4.18.0-372.26.1.el8_6.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: Gcc
+- TYP: Driver
+- PLX: 9056
+- CFG: Release
+
+make[1]: Entering directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+  CC [M]  /home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.o
+In file included from /home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:39:
+./arch/x86/include/asm/uaccess.h:30:27: error: unknown type name ‘mm_segment_t’; did you mean ‘apm_event_t’?
+ static inline void set_fs(mm_segment_t fs)
+                           ^~~~~~~~~~~~
+                           apm_event_t
+In file included from ./arch/x86/include/asm/uaccess.h:7,
+                 from /home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:39:
+./arch/x86/include/asm/uaccess.h: In function ‘user_access_begin’:
+./arch/x86/include/asm/uaccess.h:39:33: error: dereferencing pointer to incomplete type ‘struct task_struct’
+ #define user_addr_max() (current->thread.addr_limit.seg)
+                                 ^~
+./include/linux/compiler.h:77:42: note: in definition of macro ‘unlikely’
+ # define unlikely(x) __builtin_expect(!!(x), 0)
+                                          ^
+./arch/x86/include/asm/uaccess.h:98:2: note: in expansion of macro ‘likely’
+  likely(!__range_not_ok(addr, size, user_addr_max()));  \
+  ^~~~~~
+./arch/x86/include/asm/uaccess.h:98:10: note: in expansion of macro ‘__range_not_ok’
+  likely(!__range_not_ok(addr, size, user_addr_max()));  \
+          ^~~~~~~~~~~~~~
+./arch/x86/include/asm/uaccess.h:98:37: note: in expansion of macro ‘user_addr_max’
+  likely(!__range_not_ok(addr, size, user_addr_max()));  \
+                                     ^~~~~~~~~~~~~
+./arch/x86/include/asm/uaccess.h:689:16: note: in expansion of macro ‘access_ok’
+  if (unlikely(!access_ok(ptr,len)))
+                ^~~~~~~~~
+In file included from /home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/DrvDefs.h:55,
+                 from /home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.h:42,
+                 from /home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:41:
+/home/mr_halfword/GscApi-1.6.6/PlxSdk/Include/Plx_sysdep.h: At top level:
+/home/mr_halfword/GscApi-1.6.6/PlxSdk/Include/Plx_sysdep.h:54:6: error: #error "Linux kernel versions greater than v2.6 not supported"
+     #error "Linux kernel versions greater than v2.6 not supported"
+      ^~~~~
+/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c: In function ‘PlxPciBarSpaceTransfer’:
+/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:1925:21: error: macro "access_ok" passed 3 arguments, but takes just 2
+                     ) == FALSE)
+                     ^
+/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:1921:17: error: ‘access_ok’ undeclared (first use in this function); did you mean ‘AccessType’?
+             if (access_ok(
+                 ^~~~~~~~~
+                 AccessType
+/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:1921:17: note: each undeclared identifier is reported only once for each function it appears in
+/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:1938:21: error: macro "access_ok" passed 3 arguments, but takes just 2
+                     ) == FALSE)
+                     ^
+make[2]: *** [scripts/Makefile.build:316: /home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.o] Error 1
+make[1]: *** [Makefile:1577: _module_/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver] Error 2
+make[1]: Leaving directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+make: *** [/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Makefiles/Targets.def:63: BuildDriver] Error 2
+
+
+== Try and compile the latest GscApi-1.6.10.2 ==
+
+Unpack the source tar ball:
+[mr_halfword@haswell-alma Driver]$ cd ~
+[mr_halfword@haswell-alma ~]$ mkdir GscApi-1.6.10.2
+[mr_halfword@haswell-alma ~]$ cd ~/GscApi-1.6.10.2/
+[mr_halfword@haswell-alma GscApi-1.6.10.2]$ tar -xzf ~/Downloads/gsc_api.linux.1.6.10.2.tar.gz 
+
+
+Create a directory to perform the build:
+[mr_halfword@haswell-alma GscApi-1.6.10.2]$ mkdir buildGsc
+
+
+Configure the build, us9ing the defaults, and the GCC 8.5.0 installed with AlmaLinux 8.6:
+[mr_halfword@haswell-alma GscApi-1.6.10.2]$ cd buildGsc/
+[mr_halfword@haswell-alma buildGsc]$ ../gsc_api/configure 
+checking for a BSD-compatible install... /usr/bin/install -c
+checking whether build environment is sane... yes
+checking for gawk... gawk
+checking whether make sets $(MAKE)... yes
+checking whether to enable debugging... no
+checking for g++... g++
+checking whether the C++ compiler works... yes
+checking for C++ compiler default output file name... a.out
+checking for suffix of executables... 
+checking whether we are cross compiling... no
+checking for suffix of object files... o
+checking whether we are using the GNU C++ compiler... yes
+checking whether g++ accepts -g... yes
+checking for style of include used by make... GNU
+checking dependency style of g++... gcc3
+checking for gcc... gcc
+checking whether we are using the GNU C compiler... yes
+checking whether gcc accepts -g... yes
+checking for gcc option to accept ISO C89... none needed
+checking dependency style of gcc... gcc3
+checking how to run the C preprocessor... gcc -E
+checking whether ln -s works... yes
+checking whether make sets $(MAKE)... (cached) yes
+checking build system type... x86_64-unknown-linux-gnu
+checking host system type... x86_64-unknown-linux-gnu
+checking for ld used by GCC... /usr/bin/ld
+checking if the linker (/usr/bin/ld) is GNU ld... yes
+checking for /usr/bin/ld option to reload object files... -r
+checking for BSD-compatible nm... /usr/bin/nm -B
+checking for a sed that does not truncate output... /usr/bin/sed
+checking how to recognise dependent libraries... file_magic ELF [0-9][0-9]*-bit [LM]SB (shared object|dynamic lib )
+checking command to parse /usr/bin/nm -B output... ok
+checking for grep that handles long lines and -e... /usr/bin/grep
+checking for egrep... /usr/bin/grep -E
+checking for ANSI C header files... yes
+checking for sys/types.h... yes
+checking for sys/stat.h... yes
+checking for stdlib.h... yes
+checking for string.h... yes
+checking for memory.h... yes
+checking for strings.h... yes
+checking for inttypes.h... yes
+checking for stdint.h... yes
+checking for unistd.h... yes
+checking dlfcn.h usability... yes
+checking dlfcn.h presence... yes
+checking for dlfcn.h... yes
+checking for file... /usr/bin/file
+checking for ranlib... ranlib
+checking for strip... strip
+checking for objdir... .libs
+checking for gcc option to produce PIC... -fPIC
+checking if gcc PIC flag -fPIC works... yes
+checking if gcc static flag -static works... no
+checking if gcc supports -c -o file.o... yes
+checking if gcc supports -c -o file.lo... yes
+checking if gcc supports -fno-rtti -fno-exceptions... no
+checking whether the linker (/usr/bin/ld) supports shared libraries... yes
+checking how to hardcode library paths into programs... immediate
+checking whether stripping libraries is possible... yes
+checking dynamic linker characteristics... GNU/Linux ld.so
+checking if libtool supports shared libraries... yes
+checking whether to build shared libraries... yes
+checking whether to build static libraries... yes
+checking whether -lc should be explicitly linked in... no
+creating libtool
+checking for initscr in -lcurses... yes
+checking for pow in -lm... yes
+checking for pthread_create in -lpthread... yes
+checking for clock_gettime in -lrt... yes
+checking for ANSI C header files... (cached) yes
+checking fcntl.h usability... yes
+checking fcntl.h presence... yes
+checking for fcntl.h... yes
+checking malloc.h usability... yes
+checking malloc.h presence... yes
+checking for malloc.h... yes
+checking for memory.h... (cached) yes
+checking for stdlib.h... (cached) yes
+checking for string.h... (cached) yes
+checking sys/ioctl.h usability... yes
+checking sys/ioctl.h presence... yes
+checking for sys/ioctl.h... yes
+checking for unistd.h... (cached) yes
+checking for an ANSI C-conforming const... yes
+checking for inline... inline
+checking for mode_t... yes
+checking for off_t... yes
+checking for size_t... yes
+checking for stdbool.h that conforms to C99... yes
+checking for _Bool... yes
+checking for working volatile... yes
+checking whether gcc needs -traditional... no
+checking for stdlib.h... (cached) yes
+checking for GNU libc compatible malloc... yes
+checking for working memcmp... yes
+checking for stdlib.h... (cached) yes
+checking for unistd.h... (cached) yes
+checking for sys/param.h... yes
+checking for getpagesize... yes
+checking for working mmap... yes
+checking for clock_gettime... yes
+checking for memset... yes
+checking for munmap... yes
+checking for pow... yes
+checking for strstr... yes
+configure: creating ./config.status
+config.status: creating Examples/ClockTest/Makefile
+config.status: WARNING:  '../gsc_api/Examples/ClockTest/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating Examples/DisplayBoards/Makefile
+config.status: WARNING:  '../gsc_api/Examples/DisplayBoards/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating Examples/InterruptTest/Makefile
+config.status: WARNING:  '../gsc_api/Examples/InterruptTest/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating Examples/LoopBack/Makefile
+config.status: WARNING:  '../gsc_api/Examples/LoopBack/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating Examples/SyncLoopback/Makefile
+config.status: WARNING:  '../gsc_api/Examples/SyncLoopback/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating Examples/AnalogTest/Makefile
+config.status: WARNING:  '../gsc_api/Examples/AnalogTest/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating Examples/AnalogMultiBoard/Makefile
+config.status: WARNING:  '../gsc_api/Examples/AnalogMultiBoard/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating Examples/Makefile
+config.status: WARNING:  '../gsc_api/Examples/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating GscApi/Makefile
+config.status: WARNING:  '../gsc_api/GscApi/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating doc/Makefile
+config.status: WARNING:  '../gsc_api/doc/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating Makefile
+config.status: WARNING:  '../gsc_api/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Bin/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Bin/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Include/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Include/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/PlxApi/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/PlxApi/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Driver/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Driver/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Makefiles/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Makefiles/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/ApiTest/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/ApiTest/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/DSlave/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/DSlave/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/DSlave_BypassApi/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/DSlave_BypassApi/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/NT_DmaTest/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/NT_DmaTest/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/NT_LinkTest/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/NT_LinkTest/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/NT_Sample/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/NT_Sample/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/PerfMonitor/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/PerfMonitor/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/PlxCm/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/PlxCm/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/PlxDma/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/PlxDma/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/PlxDmaPerf/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/PlxDmaPerf/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/PlxDmaSglNoApi/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/PlxDmaSglNoApi/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/PlxEep/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/PlxEep/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/PlxNotification/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/PlxNotification/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating PlxSdk/Linux/Samples/Shared/Makefile
+config.status: WARNING:  '../gsc_api/PlxSdk/Linux/Samples/Shared/Makefile.in' seems to ignore the --datarootdir setting
+config.status: creating config.h
+config.status: executing depfiles commands
+
+
+Compile the user space libraries, without installing them in the system directories:
+[mr_halfword@haswell-alma buildGsc]$ make
+make  all-recursive
+make[1]: Entering directory '/home/mr_halfword/GscApi-1.6.10.2/buildGsc'
+Making all in GscApi
+<<snip>>
+make[1]: Leaving directory '/home/mr_halfword/GscApi-1.6.10.2/buildGsc'
+
+
+Attempt to build the Kernel module for the 9056 chip, but fails with the same compile errors as GscApi-1.6.6:
+[mr_halfword@haswell-alma buildGsc]$ cd ~/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/
+[mr_halfword@haswell-alma Driver]$ PLX_SDK_DIR=~/GscApi-1.6.10.2/gsc_api/PlxSdk ./builddriver 9056
+Building: Plx9056
+
+- PLA: AlmaLinux release 8.6 (Sky Tiger)
+- KER: 4.18.0-372.26.1.el8_6.x86_64
+- INC: /lib/modules/4.18.0-372.26.1.el8_6.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: Gcc
+- TYP: Driver
+- PLX: 9056
+- CFG: Release
+
+make[1]: Entering directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.o
+In file included from /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:39:
+./arch/x86/include/asm/uaccess.h:30:27: error: unknown type name ‘mm_segment_t’; did you mean ‘apm_event_t’?
+ static inline void set_fs(mm_segment_t fs)
+                           ^~~~~~~~~~~~
+                           apm_event_t
+In file included from ./arch/x86/include/asm/uaccess.h:7,
+                 from /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:39:
+./arch/x86/include/asm/uaccess.h: In function ‘user_access_begin’:
+./arch/x86/include/asm/uaccess.h:39:33: error: dereferencing pointer to incomplete type ‘struct task_struct’
+ #define user_addr_max() (current->thread.addr_limit.seg)
+                                 ^~
+./include/linux/compiler.h:77:42: note: in definition of macro ‘unlikely’
+ # define unlikely(x) __builtin_expect(!!(x), 0)
+                                          ^
+./arch/x86/include/asm/uaccess.h:98:2: note: in expansion of macro ‘likely’
+  likely(!__range_not_ok(addr, size, user_addr_max()));  \
+  ^~~~~~
+./arch/x86/include/asm/uaccess.h:98:10: note: in expansion of macro ‘__range_not_ok’
+  likely(!__range_not_ok(addr, size, user_addr_max()));  \
+          ^~~~~~~~~~~~~~
+./arch/x86/include/asm/uaccess.h:98:37: note: in expansion of macro ‘user_addr_max’
+  likely(!__range_not_ok(addr, size, user_addr_max()));  \
+                                     ^~~~~~~~~~~~~
+./arch/x86/include/asm/uaccess.h:689:16: note: in expansion of macro ‘access_ok’
+  if (unlikely(!access_ok(ptr,len)))
+                ^~~~~~~~~
+/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c: In function ‘PlxPciBarSpaceTransfer’:
+/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:1925:21: error: macro "access_ok" passed 3 arguments, but takes just 2
+                     ) == FALSE)
+                     ^
+/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:1921:17: error: ‘access_ok’ undeclared (first use in this function); did you mean ‘AccessType’?
+             if (access_ok(
+                 ^~~~~~~~~
+                 AccessType
+/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:1921:17: note: each undeclared identifier is reported only once for each function it appears in
+/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.c:1938:21: error: macro "access_ok" passed 3 arguments, but takes just 2
+                     ) == FALSE)
+                     ^
+make[2]: *** [scripts/Makefile.build:316: /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.o] Error 1
+make[1]: *** [Makefile:1577: _module_/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver] Error 2
+make[1]: Leaving directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+make: *** [/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Makefiles/Targets.def:63: BuildDriver] Error 2
+
+
+The compile errors in ApiFunc.c were resolved by applying the compability code suggestion from
+https://stackoverflow.com/a/65682486/4207678
+   "How to replace the recently abolished first parameter of macro "access_ok"?
+
+The next compile error was:
+[mr_halfword@haswell-alma Driver]$ PLX_SDK_DIR=~/GscApi-1.6.10.2/gsc_api/PlxSdk ./builddriver 9056 
+Building: Plx9056
+
+- PLA: AlmaLinux release 8.6 (Sky Tiger)
+- KER: 4.18.0-372.26.1.el8_6.x86_64
+- INC: /lib/modules/4.18.0-372.26.1.el8_6.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: Gcc
+- TYP: Driver
+- PLX: 9056
+- CFG: Release
+
+make[1]: Entering directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Dispatch.o
+In file included from /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Dispatch.c:41:
+./arch/x86/include/asm/uaccess.h: In function ‘set_fs’:
+./arch/x86/include/asm/uaccess.h:32:9: error: dereferencing pointer to incomplete type ‘struct task_struct’
+  current->thread.addr_limit = fs;
+         ^~
+make[2]: *** [scripts/Makefile.build:316: /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Dispatch.o] Error 1
+make[1]: *** [Makefile:1577: _module_/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver] Error 2
+make[1]: Leaving directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+make: *** [/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Makefiles/Targets.def:63: BuildDriver] Error 2
+
+
+In Dispatch.c replaced the include of <asm/uaccess.h> with <linux/uaccess.h>
+
+The next compile error was:
+[mr_halfword@haswell-alma Driver]$ PLX_SDK_DIR=~/GscApi-1.6.10.2/gsc_api/PlxSdk ./builddriver 9056 
+Building: Plx9056
+
+- PLA: AlmaLinux release 8.6 (Sky Tiger)
+- KER: 4.18.0-372.26.1.el8_6.x86_64
+- INC: /lib/modules/4.18.0-372.26.1.el8_6.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: Gcc
+- TYP: Driver
+- PLX: 9056
+- CFG: Release
+
+make[1]: Entering directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Dispatch.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Driver.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Eep_9000.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ModuleVersion.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/PciFunc.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/SuppFunc.o
+In file included from /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/SuppFunc.c:39:
+./arch/x86/include/asm/uaccess.h:30:27: error: unknown type name ‘mm_segment_t’; did you mean ‘apm_event_t’?
+ static inline void set_fs(mm_segment_t fs)
+                           ^~~~~~~~~~~~
+                           apm_event_t
+In file included from ./arch/x86/include/asm/uaccess.h:7,
+                 from /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/SuppFunc.c:39:
+./arch/x86/include/asm/uaccess.h: In function ‘user_access_begin’:
+./arch/x86/include/asm/uaccess.h:39:33: error: dereferencing pointer to incomplete type ‘struct task_struct’
+ #define user_addr_max() (current->thread.addr_limit.seg)
+                                 ^~
+./include/linux/compiler.h:77:42: note: in definition of macro ‘unlikely’
+ # define unlikely(x) __builtin_expect(!!(x), 0)
+                                          ^
+./arch/x86/include/asm/uaccess.h:98:2: note: in expansion of macro ‘likely’
+  likely(!__range_not_ok(addr, size, user_addr_max()));  \
+  ^~~~~~
+./arch/x86/include/asm/uaccess.h:98:10: note: in expansion of macro ‘__range_not_ok’
+  likely(!__range_not_ok(addr, size, user_addr_max()));  \
+          ^~~~~~~~~~~~~~
+./arch/x86/include/asm/uaccess.h:98:37: note: in expansion of macro ‘user_addr_max’
+  likely(!__range_not_ok(addr, size, user_addr_max()));  \
+                                     ^~~~~~~~~~~~~
+./arch/x86/include/asm/uaccess.h:689:16: note: in expansion of macro ‘access_ok’
+  if (unlikely(!access_ok(ptr,len)))
+                ^~~~~~~~~
+make[2]: *** [scripts/Makefile.build:316: /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/SuppFunc.o] Error 1
+make[1]: *** [Makefile:1577: _module_/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver] Error 2
+make[1]: Leaving directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+make: *** [/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Makefiles/Targets.def:63: BuildDriver] Error 2
+
+
+In SuppFunc.c replaced the include of <asm/uaccess.h> with <linux/uaccess.h>
+[mr_halfword@haswell-alma Driver]$ PLX_SDK_DIR=~/GscApi-1.6.10.2/gsc_api/PlxSdk ./builddriver 9056 
+Building: Plx9056
+
+- PLA: AlmaLinux release 8.6 (Sky Tiger)
+- KER: 4.18.0-372.26.1.el8_6.x86_64
+- INC: /lib/modules/4.18.0-372.26.1.el8_6.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: Gcc
+- TYP: Driver
+- PLX: 9056
+- CFG: Release
+
+make[1]: Entering directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/SuppFunc.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Chip/9056/PlxChipApi.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Chip/9056/PlxChipFn.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Chip/9056/PlxInterrupt.o
+  LD [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Plx9056.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Plx9056.mod.o
+  LD [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Plx9056.ko
+make[1]: Leaving directory '/usr/src/kernels/4.18.0-372.26.1.el8_6.x86_64'
+
+
+Device driver "Plx9056/Plx9056.ko" built sucessfully.
+[mr_halfword@haswell-alma Driver]$ modinfo Plx9056/Plx9056.ko 
+filename:       /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Plx9056/Plx9056.ko
+license:        GPL
+description:    PLX Linux Device Driver
+rhelversion:    8.6
+srcversion:     8E3CE5D593DCB20C97D9D77
+depends:        
+name:           Plx9056
+vermagic:       4.18.0-372.26.1.el8_6.x86_64 SMP mod_unload modversions 
+
+
+The patch for the above modifications has been saved in gsc_api_1.6.10.2_AlmaLinux_8.6.patch
