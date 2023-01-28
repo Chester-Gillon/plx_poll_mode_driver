@@ -317,3 +317,93 @@ the MEX file; no breakpoints are hit any for unknown reasons the *.mexw64 file i
 of modules by Visual Studio. In this situation, using clear mex and then re-running the mex file which is loaded
 then allows Visual Studio 2010 Express or Visual Studio Community 2019 to debug the MEX file:
 - R2018a, R2018b, R2021a
+
+
+== MATLAB R2020a under Windows 11, successful use of Eclipse Oxygen with GDB 7.5.50 ==
+
+MATLAB R2020a Update 8 was installed on Windows 11 home version 22H2.
+
+Initially no supported compiler was installed:
+>> mex -setup
+Error using mex
+No supported compiler was found. You can install the freely available MinGW-w64 C/C++ compiler; see Install
+MinGW-w64 Compiler. For more options, visit https://www.mathworks.com/support/compilers.
+
+Installed MinGW 6,3 via the Matlab Get Add-Ons option. Selected download only, and then installed using:
+c:\Program Files\MATLAB\R2020a\bin\win64>install_supportsoftware.exe -archives C:\Users\mr_halfword\Downloads\MathWorks\SupportPackages\R2020a
+
+
+After the installation MinGW64 was selected as the compiler:
+>> mex -setup
+MEX configured to use 'MinGW64 Compiler (C)' for C language compilation.
+
+To choose a different language, select one from the following:
+ mex -setup C++ 
+ mex -setup FORTRAN
+
+ 
+Compiled the test mex file:
+>> mex -g multi_platform_test.c test_lib.c -I$MINGWROOT\include -liberty
+Building with 'MinGW64 Compiler (C)'.
+MEX completed successfully.
+
+
+Downloaded the following to Windows 11 to get Eclipse Oxygen as already used under Linux:
+https://www.eclipse.org/downloads/download.php?file=/technology/epp/downloads/release/oxygen/3a/eclipse-cpp-oxygen-3a-win32-x86_64.zip
+
+Unpacked the contents of eclipse-cpp-oxygen-3a-win32-x86_64.zip to C:\eclipse-cpp-oxygen-3a-win32-x86_64
+
+There is no java on the path:
+C:\Users\mr_halfword>where java
+INFO: Could not find files for the given pattern(s).
+
+
+Set the PATH in a command prompt to find the JRE in the MATLAB 2020a installation:
+C:\Users\mr_halfword>set PATH=c:\Program Files\MATLAB\R2020a\sys\java\jre\win64\jre\bin;%PATH%
+
+C:\Users\mr_halfword>where java
+c:\Program Files\MATLAB\R2020a\sys\java\jre\win64\jre\bin\java.exe
+
+
+Which is a 1.8 JRE:
+C:\Users\mr_halfword>java -version
+java version "1.8.0_202"
+Java(TM) SE Runtime Environment (build 1.8.0_202-b08)
+Java HotSpot(TM) 64-Bit Server VM (build 25.202-b08, mixed mode)
+
+
+With the MATLAB 2020a JRE in the PATH, C:\eclipse-cpp-oxygen-3a-win32-x86_64\eclipse\eclipse.exe launches
+successfully and can create a workspace.
+Tried using C:\ProgramData\MATLAB\SupportPackages\R2020a\3P.instrset\mingw_w64.instrset\bin\gdb.exe, which is v7.11.1,
+with Eclipse but with that version of GDB Eclipse failed to start a debug session.
+
+Downloaded https://sysprogs.com/getfile/31/mingw64-gcc4.7.1.exe. Ran the installer as a normal user and:
+a. Installed to the default location of SysGCC\MinGW64
+b. Unticked the "Add binary directory to %PATH%" option
+
+C:\SysGCC\MinGW64\bin\gdb.exe is version 7.50.50
+
+
+To test debugging:
+1. Start MATLAB R2020a
+
+2. Start a new command prompt. Set PATH and then start Eclipse:
+C:\Users\mr_halfword>set PATH=c:\Program Files\MATLAB\R2020a\sys\java\jre\win64\jre\bin;%PATH%
+C:\Users\mr_halfword>set PATH=C:\SysGCC\MinGW64\bin;%PATH%
+C:\Users\mr_halfword>c:\eclipse-cpp-oxygen-3a-win32-x86_64\eclipse\eclipse.exe
+
+3. In Eclipse create a workspace, and create a "C/C++ Attach to Application" debug configuration with
+   the C/C++ Application as:
+      C:\Program Files\MATLAB\R2020a\bin\win64\MATLAB.exe
+
+4. In the Select Processes dialog the name of the MATLAB process isn't given.
+   In the Windows Task Manager find the PID of MATLAB.exe, and select that in the Eclipse list of processes
+   After Eclipse is attached the MATLAB process is suspended.
+   
+5. In Eclipse used File Open to open the multi_platform_test.c and set a break point in the mexFunction.
+   In the Eclipse debugger used Resume.
+   
+6. In MATLAB execute multi_platform_test. Eclipse stops the breakpoint which has been set.
+   Can step the MEX source code and inspect variables.
+   A few times while source stepping stopped in a SIGSEGV inside a random thread. Using resume then
+   completed the step operation.
