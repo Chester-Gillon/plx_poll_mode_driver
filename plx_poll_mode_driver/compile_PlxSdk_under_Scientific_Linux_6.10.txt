@@ -1,0 +1,604 @@
+0. Introduction
+===============
+
+This describes how to compile PlkSdk 8.23 under Scientific Linux 6.10 with a 3.10.33-rt32.33.el6rt.x86_64 Kernel.
+
+https://docs.broadcom.com/doc/pex8311-detailed-technical-spec-data_Book-V1Dec2009 is the Data Book for the PEX8311 device.
+
+
+1. Building the PlxSdk from source
+==================================
+
+1.1. Source download
+~~~~~~~~~~~~~~~~~~~~
+
+From https://www.broadcom.com/products/pcie-switches-bridges/software-dev-kits selected "PCI/PCIe SDK Linux Package Only"
+https://docs.broadcom.com/docs/SDK-Linux-Package-Only and downloaded
+https://docs.broadcom.com/docs-and-downloads/plx-files/Broadcom_PCI_PCIe_SDK_Linux_v8_23_Final_2020-11-18.zip
+
+
+1.2. Unpacking source
+~~~~~~~~~~~~~~~~~~~~~
+
+Create a directory to be used for the build:
+[mr_halfword@sandy-centos ~]$ mkdir PlxSdk-8.23
+[mr_halfword@sandy-centos ~]$ cd ~/PlxSdk-8.23/
+
+Unpack the .zip download:
+[mr_halfword@sandy-centos PlxSdk-8.23]$ unzip ~/Downloads/Broadcom_PCI_PCIe_SDK_Linux_v8_23_Final_2020-11-18.zip 
+Archive:  /home/mr_halfword/Downloads/Broadcom_PCI_PCIe_SDK_Linux_v8_23_Final_2020-11-18.zip
+  inflating: PlxSdk.tar              
+  inflating: Documentation/PLX API DLL with Visual Basic.htm  
+  inflating: Documentation/PLX_LegacyAPI.pdf  
+  inflating: Documentation/PLX_SDK_General_FAQ.pdf  
+  inflating: Documentation/PLX_SDK_Linux_Release_Notes.htm  
+  inflating: Documentation/PLX_SDK_Release_Notes.htm  
+  inflating: Documentation/PlxRdkReferenceGuide.htm  
+  inflating: Documentation/PlxSdkUserManual.pdf  
+
+Unpack the PlxSdr source tarball:
+[mr_halfword@sandy-centos PlxSdk-8.23]$ tar xf PlxSdk.tar 
+
+
+[mr_halfword@sandy-centos PlxSdk-8.23]$ cd PlxSdk/Driver/
+[mr_halfword@sandy-centos Driver]$ ./builddriver 9056
+
+
+1.3. Build Kernel modules
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Build the Plx9056.ko Kernel module, which for the "PCI9056 32-bit 66MHz PCI <-> IOBus Bridge" part of the PEX8311:
+Build: Plx9056
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- KER: ver 3.10.33-rt32.33.el6rt.x86_64
+- INC: /lib/modules/3.10.33-rt32.33.el6rt.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: 9056 Driver
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Dispatch.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Driver.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Eep_9000.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ModuleVersion.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/PciFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/SuppFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Chip/9056/PlxChipApi.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Chip/9056/PlxChipFn.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Chip/9056/PlxInterrupt.o
+  LD [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Plx9056.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Plx9056.mod.o
+  LD [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Plx9056.ko
+
+Driver "Source.Plx9000/Output/Plx9056.ko" built sucessfully
+
+[mr_halfword@sandy-centos Driver]$ modinfo Source.Plx9000/Output/Plx9056.ko
+filename:       Source.Plx9000/Output/Plx9056.ko
+license:        GPL
+version:        v8.23 [64-bit Release build]
+description:    PLX SDK 9056 Linux driver
+srcversion:     A684F699D306DB52AA3AE7E
+alias:          pci:v000010B5d000056C2sv*sd*bc*sc*i*
+alias:          pci:v000010B5d00005601sv*sd*bc*sc*i*
+alias:          pci:v000010B5d00009056sv*sd*bc*sc*i*
+depends:        
+vermagic:       3.10.33-rt32.33.el6rt.x86_64 SMP preempt mod_unload 
+
+
+Build the PlxSvc.ko Kernel module, which is for the "PEX 8111 PCI Express-to-PCI Bridge" part of the PEX8311:
+[mr_halfword@sandy-centos Driver]$ ./builddriver Svc
+
+
+Build: PlxSvc
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- KER: ver 3.10.33-rt32.33.el6rt.x86_64
+- INC: /lib/modules/3.10.33-rt32.33.el6rt.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Svc Driver
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/ApiFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/ChipFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Dispatch.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Driver.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Eep_6000.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Eep_8000.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Eep_8111.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/ModuleVersion.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/PciFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/SuppFunc.o
+  LD [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/PlxSvc.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/PlxSvc.mod.o
+  LD [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/PlxSvc.ko
+
+Driver "Source.PlxSvc/Output/PlxSvc.ko" built sucessfully
+
+[mr_halfword@sandy-centos Driver]$ modinfo Source.PlxSvc/Output/PlxSvc.ko
+filename:       Source.PlxSvc/Output/PlxSvc.ko
+license:        GPL
+version:        v8.23 [64-bit Release build]
+description:    PLX SDK PCI/PCIe Service driver
+srcversion:     34F76474B078E0292824E82
+depends:        
+vermagic:       3.10.33-rt32.33.el6rt.x86_64 SMP preempt mod_unload 
+
+
+1.4. Build PlxApi
+~~~~~~~~~~~~~~~~~
+
+Build the PlxApi:
+[mr_halfword@sandy-centos ~]$ cd ~/PlxSdk-8.23/PlxSdk/PlxApi
+[mr_halfword@sandy-centos PlxApi]$ PLX_SDK_DIR=~/PlxSdk-8.23/PlxSdk make
+
+
+Build: PlxApi
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: API Library
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  Aardvark.c
+CC  Eep_8000.c
+CC  I2cAaUsb.c
+CC  MdioSpliceUsb.c
+CC  PlxApi.c
+CC  PlxApiDirect.c
+CC  SdbComPort.c
+CC  SpiFlash.c
+LIB PlxApi.a
+LIB PlxApi.so
+
+Libraries "Library/PlxApi.a" & "Library/PlxApi.so" built successfully
+
+
+1.5. Build sample application
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Build all the sample applications:
+[mr_halfword@sandy-centos PlxApi]$ cd ~/PlxSdk-8.23/PlxSdk
+[mr_halfword@sandy-centos PlxSdk]$ PLX_SDK_DIR=~/PlxSdk-8.23/PlxSdk make
+
+   ------------------
+
+Build: PlxApi
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: API Library
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+LIB PlxApi.a
+LIB PlxApi.so
+
+Libraries "Library/PlxApi.a" & "Library/PlxApi.so" built successfully
+
+   ------------------
+
+Build: ApiTest
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  ApiTest.c
+LNK ApiTest
+
+Application "App/ApiTest" built successfully
+
+   ------------------
+
+Build: DSlave
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  DSlave.c
+LNK DSlave
+
+Application "App/DSlave" built successfully
+
+   ------------------
+
+Build: DSlaveVa
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  DSlave_BypassApi.c
+LNK DSlaveVa
+
+Application "App/DSlaveVa" built successfully
+
+   ------------------
+
+Build: LocalToPciInt
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  LocalToPciInt.c
+LNK LocalToPciInt
+
+Application "App/LocalToPciInt" built successfully
+
+   ------------------
+
+Build: NT_DmaTest
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  NT_DmaTest.c
+CC  PlxDmaPerf.c
+LNK NT_DmaTest
+
+Application "App/NT_DmaTest" built successfully
+
+   ------------------
+
+Build: NT_LinkTest
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  NT_LinkTest.c
+LNK NT_LinkTest
+
+Application "App/NT_LinkTest" built successfully
+
+   ------------------
+
+Build: NTSample
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  NTSample.c
+LNK NTSample
+
+Application "App/NTSample" built successfully
+
+   ------------------
+
+Build: PerfMon
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PerfMonitor.c
+LNK PerfMon
+
+Application "App/PerfMon" built successfully
+
+   ------------------
+
+Build: PlxCm
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxLists.c
+CC  CmdLine.c
+CC  MonCmds.c
+CC  Monitor.c
+CC  PciDev.c
+CC  RegDefs.c
+LNK PlxCm
+
+Application "App/PlxCm" built successfully
+
+   ------------------
+
+Build: PlxDma
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PlxDma.c
+LNK PlxDma
+
+Application "App/PlxDma" built successfully
+
+   ------------------
+
+Build: PlxDmaPerf
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PlxDmaPerf.c
+LNK PlxDmaPerf
+
+Application "App/PlxDmaPerf" built successfully
+
+   ------------------
+
+Build: PlxDmaSglNoApi
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PlxDmaSglNoApi.c
+LNK PlxDmaSglNoApi
+
+Application "App/PlxDmaSglNoApi" built successfully
+
+   ------------------
+
+Build: PlxEep
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  PlxEep.c
+LNK PlxEep
+
+Application "App/PlxEep" built successfully
+
+   ------------------
+
+Build: PlxNotification
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PlxNotification.c
+LNK PlxNotification
+
+Application "App/PlxNotification" built successfully
+
+
+2. Using PlxSdk samples to access EEPROMs on the Sealevel COMM+2.LPCIe board (7205e)
+====================================================================================
+
+Load the PlxSvc Kernel module which is required to access the EEPROM on the
+"PEX 8111 PCI Express-to-PCI Bridge" part of the PEX8311:
+[mr_halfword@sandy-centos ~]$ cd ~/PlxSdk-8.23/PlxSdk/Bin/
+[mr_halfword@sandy-centos Bin]$ sudo ./Plx_load Svc
+[sudo] password for mr_halfword: 
+
+Install: PlxSvc
+  Load module......... Ok (/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Output)
+  Verify load......... Ok
+  Get major number.... Ok (MajorID = 247)
+  Create node path.... Ok (/dev/plx)
+  Create nodes........ Ok (/dev/plx/PlxSvc)
+
+
+Load the Plx9056 Kernel module which is required to access the EEPROM on the
+"PCI9056 32-bit 66MHz PCI <-> IOBus Bridge" part of the PEX8311:
+[mr_halfword@sandy-centos Bin]$ sudo ./Plx_load 9056
+
+Install: Plx9056
+  Load module......... Ok (/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Output)
+  Verify load......... Ok
+  Get major number.... Ok (MajorID = 246)
+  Create node path.... Ok (/dev/plx already exists)
+  Create nodes........ Ok (/dev/plx/Plx9056)
+
+
+Start the PLX Console Monitor, which defaults to selecting the PLX 8111 bridge:
+[mr_halfword@sandy-centos Bin]$ ~/PlxSdk-8.23/PlxSdk/Samples/PlxCm/App/PlxCm 
+Searching for devices...
+
+   # D Bs Dv F Pt Dev  Ven  Chip Rv I/M  Description
+ ------------------------------------------------------------------------------
+   0 0 00 00 0 -- 0100 8086  --  --  --  Host bridge / Root Complex
+   1 0 00 01 0 02 0101 8086  --  --  --  PCIe Root Complex Root Port
+   2 0 00 02 0 -- 0102 8086  --  --  --  Intel VGA display controller
+   3 0 00 16 0 -- 1C3A 8086  --  --  --  Communication controller
+   4 0 00 19 0 -- 1503 8086  --  --  --  Intel Ethernet controller
+   5 0 00 1A 0 -- 1C2D 8086  --  --  --  USB 2.0 IEHCI Host controller
+   6 0 00 1B 0 00 1C20 8086  --  --  --  HD Audio (HD-A) 1.0 device
+   7 0 00 1C 0 01 1C10 8086  --  --  --  PCIe Root Complex Root Port
+   8 0 00 1C 2 03 1C14 8086  --  --  --  PCIe Root Complex Root Port
+   9 0 00 1C 3 04 1C16 8086  --  --  --  PCIe Root Complex Root Port
+   A 0 00 1D 0 -- 1C26 8086  --  --  --  USB 2.0 IEHCI Host controller
+   B 0 00 1F 0 -- 1C4A 8086  --  --  --  ISA bridge
+   C 0 00 1F 2 -- 1C02 8086  --  --  --  SATA controller (AHCI interface)
+   D 0 00 1F 3 -- 1C22 8086  --  --  --  System Management Bus (SMBus) ctrlr
+   E 0 01 00 0 08 1003 15B3  --  --  --  Network controller
+   F 0 02 00 0 -- 8892 1283  --  --  --  PCI-to-PCI bridge (sub decode)
+=>10 0 04 00 0 00 8111 10B5 8111 BB  --  PLX PCIe <==> PCI bridge
+  11 0 05 04 0 -- 9056 10B5 9056 BA  --  PLX PCI <==> Local bus bridge
+  12 0 06 00 0 00 0194 1033  --  --  --  USB 1.1 Universal Host controller
+
+PLX Console Monitor (64-bit), v8.23 [Feb 19 2023]
+Copyright (c) Broadcom, Inc.
+
+
+Display the 8111 EEPROM contents:
+>eep
+
+   ------ 8111 EEPROM Header ------
+ Signature    : 5A [Valid]
+ Load Regs    : Yes
+ Load Sh Mem  : Yes
+ Registers    : 6 bytes (1 regs)
+
+   #    Port     Offset     Value
+ -----------------------------------
+   0     --       0034     00000050
+
+
+   --- Shared Memory (4 bytes) ---
+ 000: 0010 0020
+
+
+Change the selected device to the 9056 endpoint and display it's EEPROM contents:
+>dev 11
+Selected: [D0 05:04.0] 9056_10B5 [9056] - PLX PCI <==> Local bus bridge
+>eep
+ 000: 905610B5  Device ID | Vendor ID
+ 004: 068000AA  Base Class | Sub Class | Interface | Revision ID
+ 008: 00000100  Max_Lat | Min_Grant | Interrupt Pin | Interrupt Line
+ 00C: 00000000  Mailbox 0
+ 010: 00000000  Mailbox 1
+ 014: FFFFFFF0  Range for PCI-to-Local Address Space 0
+ 018: 03000001  Local Base Address (Remap) for PCI-to-Local Space 0
+ 01C: 09210007  Local Mode/DMA Arbitration
+ 020: 20308400  VPD Boundary | Big/Little Endian Descriptor
+ 024: 00000000  Range for PCI-to-Local Expansion ROM
+ 028: 00000000  Local Base Address for PCI-to-Local Expansion ROM and BREQ
+ 02C: 42000300  Local Bus Region Descriptor (Space 0) for PCI-to-Local Access
+ 030: 00000000  Range for Direct Master-to-PCI
+ 034: 60000000  Local Base Address for Direct Master-to-PCI Memory
+ 038: 50000000  Local Base Address for Direct Master-to-PCI IO/CFG
+ 03C: 00000000  PCI Base Address for Direct Master-to-PCI
+ 040: 00000000  PCI Configuration Address for Direct Master-to-PCI IO/CFG
+ 044: 319810B5  Subsystem Device ID | Subsystem Vendor ID
+ 048: FFFFFFF0  Range for PCI-to-Local Address Space 1
+ 04C: 03100001  Local Base Address (Remap) for PCI-to-Local Space 1
+ 050: 00000000  Local Bus Region Descriptor (Space 1) for PCI-to-Local Access
+ 054: 00004C00  Hot Swap Control/Status | Next Item Pointer | Capability ID
+ 058: 00000000  PCI Arbiter Control                                   
+ 05C: 48010001  Power Management Capability | Next Item Pointer | Capability ID
+ 060: 00000000  Power Management Control/Status
+>q
+
+
+The PlxEep sample was used to save the contents of the 8311 EEPROM:
+[mr_halfword@sandy-centos Bin]$ ~/PlxSdk-8.23/PlxSdk/Samples/PlxEep/App/PlxEep -s ~/plx_poll_mode_driver/plx_poll_mode_driver/8311_eeprom.bin
+
+		     1. 9056 10b5  [9056 BA @ 05:04.0]
+		     2. 8111 10b5  [8111 BB @ 04:00.0]
+		     0. Cancel
+
+	   Device selection --> 2
+
+Selected: 8111 10b5 [04:00.0]
+
+Get EEPROM data size.. Ok (16B)
+Read EEPROM data...... Ok
+Write data to file.... Ok (/home/mr_halfword/plx_poll_mode_driver/plx_poll_mode_driver/8311_eeprom.bin)
+ -- Complete (0.01 sec) --
+
+
+The bytes in the saved EEPROM content:
+[mr_halfword@sandy-centos Bin]$ od -t x1 ~/plx_poll_mode_driver/plx_poll_mode_driver/8311_eeprom.bin
+0000000 5a 03 06 00 34 00 50 00 00 00 04 00 10 00 20 00
+0000020
+
+The bytes in 8311_eeprom.bin can be decoded using the section "4.2.1 Serial EEPROM Data Format" of the PEX 8311AA Data Book,
+and match the decoded content reported by the PlxCm sample.
+
+
+3. Using PCI config access to check for presence of 8311 PCIe Configuration Space EEPROM
+========================================================================================
+
+The following writes to the  PECS_MAININDEX Main Control Register Index (84.l) to set the offset of the
+PECS_CHIPREV Chip Silicon Revision (1040):
+[mr_halfword@sandy-centos Bin]$ sudo setpci -d 10b5:8111 84.l=1040
+
+And then reads the PECS_MAINDATA Main Control Register Data (88.l) to read the contents of the Chip Silicon Revision,
+where the value of 0201 matches the expected value:
+[mr_halfword@sandy-centos Bin]$ sudo setpci -d 10b5:8111 88.l
+00000201
+
+The following reads from the  PECS_EECTL Serial EEPROM Control at offset 1004:
+[mr_halfword@sandy-centos Bin]$ sudo setpci -d 10b5:8111 84.l=1004
+[mr_halfword@sandy-centos Bin]$ sudo setpci -d 10b5:8111 88.l
+81300000
+
+Decoding the value:
+- Serial EEPROM Valid bit 20 set, meaning "A serial EEPROM with 5Ah in the first byte is detected"
+- Serial EEPROM Present bit 21 set, meaning "The Serial EEPROM Controller determines that a serial EEPROM is connected to the PEX 8311"
+- Bit 24:23 = 10b meaning Serial EEPROM Address Width = 2 bytes
+- Bit 31 set, meaning EEPROM initialization has completed.
+
+

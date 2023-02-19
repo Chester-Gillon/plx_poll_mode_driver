@@ -212,3 +212,27 @@ description:    PLX Linux Device Driver
 srcversion:     2CE13CD8400A91A7F23FE5C
 depends:        
 vermagic:       3.10.33-rt32.33.el6rt.x86_64 SMP preempt mod_unload 
+
+
+Attempting to build the Kernel module for Svc service driver fails:
+[mr_halfword@sandy-centos ~]$ cd ~/GscApi-1.6.6/PlxSdk/Linux/Driver/
+[mr_halfword@sandy-centos Driver]$ PLX_SDK_DIR=~/GscApi-1.6.6/PlxSdk ./builddriver Svc
+Building: PlxSvc
+
+- PLA: Scientific Linux release 6.10 (Carbon)
+- KER: 3.10.33-rt32.33.el6rt.x86_64
+- INC: /lib/modules/3.10.33-rt32.33.el6rt.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: Gcc
+- TYP: Driver
+- PLX: Svc
+- CFG: Release
+
+make[1]: Entering directory `/usr/src/kernels/3.10.33-rt32.33.el6rt.x86_64'
+make[2]: *** No rule to make target `/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.PlxSvc/ApiFunc.o', needed by `/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver/PlxSvc.o'.  Stop.
+make[1]: *** [_module_/home/mr_halfword/GscApi-1.6.6/PlxSdk/Linux/Driver] Error 2
+make[1]: Leaving directory `/usr/src/kernels/3.10.33-rt32.33.el6rt.x86_64'
+make: *** [BuildDriver] Error 2
+
+The ~/GscApi-1.6.6/PlxSdk/Linux/Driver/Source.PlxSvc directory doesn't exist in the PlxSdk packaged with the GscApi
+
