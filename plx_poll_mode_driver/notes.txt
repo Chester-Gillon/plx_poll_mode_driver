@@ -305,4 +305,107 @@ root@MYD_CZU4EV_RC:~# ./hello_world
 Hello from Ada
 
 
+== Effect of "Randomise memory allocations (Bottom-up ASLR)" under Windows 10 ==
 
+Using Windows 10 Pro Version 22H2 (OS Build 19045.2728)
+
+Under Windows Security -> App & Browser control -> Exploit protection -> Randomise memory allocations (Bottom-up ASLR)
+is set to "Use default(On)"
+
+Running plx_poll_mode_driver.exe multiple times shows the virtual address of the following:
+- deviceKey on the stack
+- device on the heap
+- bar_mapping mapped to PCIe device BARs
+
+Change from run-to-run:
+C:\Users\mr_halfword\plx_poll_mode_driver\Debug>plx_poll_mode_driver.exe 1
+PlxPci_ApiVersion : versionMajor=7 versionMinor=2 versionRevison=5
+Found SIO4 board at bus=5 slot=4 function=0
+PlxPci_DriverVersion : versionMajor=7 versionMinor=2 versionRevison=5
+&deviceKey(stack)=0133FE0C  device(heap)=01991878
+Performing tests with UART registers mapped into virtual address space
+bar_index=2 bar_mapping=014D0DF0
+bar_index=3 bar_mapping=014E0DE0
+Detected 16C950 rev B on bar_index 2
+Detected 16C950 rev B on bar_index 3
+Sent 128 bytes from UART at bar_index 2 -> bar_index 2
+Sent 128 bytes from UART at bar_index 3 -> bar_index 3
+
+C:\Users\mr_halfword\plx_poll_mode_driver\Debug>plx_poll_mode_driver.exe 1
+PlxPci_ApiVersion : versionMajor=7 versionMinor=2 versionRevison=5
+Found SIO4 board at bus=5 slot=4 function=0
+PlxPci_DriverVersion : versionMajor=7 versionMinor=2 versionRevison=5
+&deviceKey(stack)=00F5F738  device(heap)=01651878
+Performing tests with UART registers mapped into virtual address space
+bar_index=2 bar_mapping=01010DF0
+bar_index=3 bar_mapping=01020DE0
+Detected 16C950 rev B on bar_index 2
+Detected 16C950 rev B on bar_index 3
+Sent 128 bytes from UART at bar_index 2 -> bar_index 2
+Sent 128 bytes from UART at bar_index 3 -> bar_index 3
+
+C:\Users\mr_halfword\plx_poll_mode_driver\Debug>plx_poll_mode_driver.exe 1
+PlxPci_ApiVersion : versionMajor=7 versionMinor=2 versionRevison=5
+Found SIO4 board at bus=5 slot=4 function=0
+PlxPci_DriverVersion : versionMajor=7 versionMinor=2 versionRevison=5
+&deviceKey(stack)=00BFF9BC  device(heap)=014A1878
+Performing tests with UART registers mapped into virtual address space
+bar_index=2 bar_mapping=00FB0DF0
+bar_index=3 bar_mapping=012E0DE0
+Detected 16C950 rev B on bar_index 2
+Detected 16C950 rev B on bar_index 3
+Sent 128 bytes from UART at bar_index 2 -> bar_index 2
+Sent 128 bytes from UART at bar_index 3 -> bar_index 3
+
+
+Under Exploit Proetection -> Program Settings added an override for "plx_poll_mode_driver.exe"
+(by program name rather thas path) to Override system settings for Bottom-up ASLR to turn off.
+Without restarting the PC then ran plx_poll_mode_driver.exe multiple times again:
+C:\Users\mr_halfword\plx_poll_mode_driver\Debug>plx_poll_mode_driver.exe 1
+PlxPci_ApiVersion : versionMajor=7 versionMinor=2 versionRevison=5
+Found SIO4 board at bus=5 slot=4 function=0
+PlxPci_DriverVersion : versionMajor=7 versionMinor=2 versionRevison=5
+&deviceKey(stack)=004FFEE0  device(heap)=00B61878
+Performing tests with UART registers mapped into virtual address space
+bar_index=2 bar_mapping=001E0DF0
+bar_index=3 bar_mapping=001F0DE0
+Detected 16C950 rev B on bar_index 2
+Detected 16C950 rev B on bar_index 3
+Sent 128 bytes from UART at bar_index 2 -> bar_index 2
+Sent 128 bytes from UART at bar_index 3 -> bar_index 3
+
+C:\Users\mr_halfword\plx_poll_mode_driver\Debug>plx_poll_mode_driver.exe 1
+PlxPci_ApiVersion : versionMajor=7 versionMinor=2 versionRevison=5
+Found SIO4 board at bus=5 slot=4 function=0
+PlxPci_DriverVersion : versionMajor=7 versionMinor=2 versionRevison=5
+&deviceKey(stack)=004FFEE0  device(heap)=009D1878
+Performing tests with UART registers mapped into virtual address space
+bar_index=2 bar_mapping=001F0DF0
+bar_index=3 bar_mapping=00610DE0
+Detected 16C950 rev B on bar_index 2
+Detected 16C950 rev B on bar_index 3
+Sent 128 bytes from UART at bar_index 2 -> bar_index 2
+Sent 128 bytes from UART at bar_index 3 -> bar_index 3
+
+C:\Users\mr_halfword\plx_poll_mode_driver\Debug>plx_poll_mode_driver.exe 1
+PlxPci_ApiVersion : versionMajor=7 versionMinor=2 versionRevison=5
+Found SIO4 board at bus=5 slot=4 function=0
+PlxPci_DriverVersion : versionMajor=7 versionMinor=2 versionRevison=5
+&deviceKey(stack)=004FFEE0  device(heap)=00A61878
+Performing tests with UART registers mapped into virtual address space
+bar_index=2 bar_mapping=001E0DF0
+bar_index=3 bar_mapping=001F0DE0
+Detected 16C950 rev B on bar_index 2
+Detected 16C950 rev B on bar_index 3
+Sent 128 bytes from UART at bar_index 2 -> bar_index 2
+Sent 128 bytes from UART at bar_index 3 -> bar_index 3
+
+As a result of turning Bottom-up ASLR off:
+a. The address deviceKey allocated on the stack is now the same from run-to-run.
+b. The address of the device on the heap still changes from run-to-run.
+c. The address of the bar_mapping still changes from run-to-run.
+   This could be allocated in the device driver.
+
+The project settings for the linker have Randomised Base Address set as "Yes (/DYNAMIC_BASE)"
+Changing the linker to set the Randomised Base Address set as "No (/DYNAMIC_BASE:NO)" didn't prevent the
+heap address from changing from run-to-run.

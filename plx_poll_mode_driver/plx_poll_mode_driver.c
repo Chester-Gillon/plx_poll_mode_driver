@@ -382,6 +382,7 @@ static void perform_uart_tests (PLX_DEVICE_OBJECT *const device, const BOOL use_
                 printf ("PlxPci_PciBarMap failed : %d : bar_index=%u\n", status, port->bar_index);
                 exit (EXIT_FAILURE);
             }
+            printf ("bar_index=%u bar_mapping=%p\n", port->bar_index, port->bar_mapping);
         }
     }
     else
@@ -427,7 +428,7 @@ int main (int argc, char *argv[])
 {
     PLX_STATUS status;
     PLX_DEVICE_KEY deviceKey;
-    PLX_DEVICE_OBJECT device;
+    PLX_DEVICE_OBJECT *const device = (PLX_DEVICE_OBJECT *) malloc (sizeof (*device));
     U8 apiVersionMajor;
     U8 apiVersionMinor;
     U8 apiVersionRevision;
@@ -469,8 +470,8 @@ int main (int argc, char *argv[])
     printf ("Found SIO4 board at bus=%u slot=%u function=%u\n", deviceKey.bus, deviceKey.slot, deviceKey.function);
 
     /* Open the device found */
-    memset (&device, 0, sizeof (device));
-    status = PlxPci_DeviceOpen (&deviceKey, &device);
+    memset (device, 0, sizeof (*device));
+    status = PlxPci_DeviceOpen (&deviceKey, device);
     if (status != ApiSuccess)
     {
         printf ("PlxPci_DeviceOpen failed : %d\n", status);
@@ -479,13 +480,14 @@ int main (int argc, char *argv[])
 
     /* Obtain the driver version, and check that if matches the API version.
        If the versions don't match then abort the program as may lead to problems */
-    status = PlxPci_DriverVersion (&device, &driverVersionMajor, &driverVersionMinor, &driverVersionRevision);
+    status = PlxPci_DriverVersion (device, &driverVersionMajor, &driverVersionMinor, &driverVersionRevision);
     if (status != ApiSuccess)
     {
         printf ("PlxPci_DriverVersion failed : %d\n", status);
         exit (EXIT_FAILURE);
     }
     printf ("PlxPci_DriverVersion : versionMajor=%u versionMinor=%u versionRevison=%u\n", driverVersionMajor, driverVersionMinor, driverVersionRevision);
+    printf ("&deviceKey(stack)=%p  device(heap)=%p\n", &deviceKey, device);
     if ((apiVersionMajor != driverVersionMajor) || (apiVersionMinor != driverVersionMinor) || (apiVersionRevision != driverVersionRevision))
     {
         printf ("Aborting as the API and driver versions don't match\n");
@@ -493,10 +495,10 @@ int main (int argc, char *argv[])
     }
 
     /* Perform the tests */
-    perform_uart_tests (&device, use_bar_mapping);
+    perform_uart_tests (device, use_bar_mapping);
 
     /* Close the device */
-    status = PlxPci_DeviceClose (&device);
+    status = PlxPci_DeviceClose (device);
     if (status != ApiSuccess)
     {
         printf ("PlxPci_DeviceClose failed : %d\n", status);
