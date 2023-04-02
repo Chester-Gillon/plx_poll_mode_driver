@@ -1,0 +1,836 @@
+0. Introduction
+===============
+
+This describes how to compile PlkSdk 8.23 under AlmaLinux 8.7 with a 4.18.0-425.13.1.el8_7.x86_64 Kernel.
+
+https://docs.broadcom.com/doc/pex8311-detailed-technical-spec-data_Book-V1Dec2009 is the Data Book for the PEX8311 device.
+
+
+1. Building the PlxSdk from source
+==================================
+
+1.1. Source download
+~~~~~~~~~~~~~~~~~~~~
+
+From https://www.broadcom.com/products/pcie-switches-bridges/software-dev-kits selected "PCI/PCIe SDK Linux Package Only"
+https://docs.broadcom.com/docs/SDK-Linux-Package-Only and downloaded
+https://docs.broadcom.com/docs-and-downloads/plx-files/Broadcom_PCI_PCIe_SDK_Linux_v8_23_Final_2020-11-18.zip
+
+
+1.2. Unpacking source
+~~~~~~~~~~~~~~~~~~~~~
+
+Create a directory to be used for the build:
+[mr_halfword@haswell-alma ~]$ cd ~/PlxSdk-8.23/
+[mr_halfword@haswell-alma PlxSdk-8.23]$ 
+
+Unpack the .zip download:
+[mr_halfword@haswell-alma PlxSdk-8.23]$ unzip ~/Downloads/Broadcom_PCI_PCIe_SDK_Linux_v8_23_Final_2020-11-18.zip 
+Archive:  /home/mr_halfword/Downloads/Broadcom_PCI_PCIe_SDK_Linux_v8_23_Final_2020-11-18.zip
+  inflating: PlxSdk.tar              
+  inflating: Documentation/PLX API DLL with Visual Basic.htm  
+  inflating: Documentation/PLX_LegacyAPI.pdf  
+  inflating: Documentation/PLX_SDK_General_FAQ.pdf  
+  inflating: Documentation/PLX_SDK_Linux_Release_Notes.htm  
+  inflating: Documentation/PLX_SDK_Release_Notes.htm  
+  inflating: Documentation/PlxRdkReferenceGuide.htm  
+  inflating: Documentation/PlxSdkUserManual.pdf  
+
+Unpack the PlxSdr source tarball:
+[mr_halfword@haswell-alma PlxSdk-8.23]$ tar xf PlxSdk.tar
+
+
+1.3. Build Kernel modules
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Build the PlxSvc.ko Kernel module, which is for the "PEX 8111 PCI Express-to-PCI Bridge" part of the PEX8311:
+[mr_halfword@haswell-alma PlxSdk-8.23]$ cd PlxSdk/Driver/
+[mr_halfword@haswell-alma Driver]$ ./builddriver Svc
+
+
+Build: PlxSvc
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- KER: ver 4.18.0-425.13.1.el8_7.x86_64
+- INC: /lib/modules/4.18.0-425.13.1.el8_7.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Svc Driver
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/ApiFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/ChipFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Dispatch.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Driver.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Eep_6000.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Eep_8000.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Eep_8111.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/ModuleVersion.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/PciFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/SuppFunc.o
+  LD [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/PlxSvc.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/PlxSvc.mod.o
+  LD [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/PlxSvc.ko
+
+Driver "Source.PlxSvc/Output/PlxSvc.ko" built sucessfully
+
+
+Attempt to build the Plx9056.ko Kernel module, which for the "PCI9056 32-bit 66MHz PCI <-> IOBus Bridge" part of the PEX8311:
+[mr_halfword@haswell-alma Driver]$ ./builddriver 9056
+
+
+Build: Plx9056
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- KER: ver 4.18.0-425.13.1.el8_7.x86_64
+- INC: /lib/modules/4.18.0-425.13.1.el8_7.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: 9056 Driver
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.o
+/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.c: In function ‘PlxPciBarSpaceTransfer’:
+/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.c:1895:21: error: macro "access_ok" passed 3 arguments, but takes just 2
+                     ) == FALSE)
+                     ^
+In file included from /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/DrvDefs.h:64,
+                 from /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.h:54,
+                 from /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.c:53:
+/home/mr_halfword/PlxSdk-8.23/PlxSdk/Include/Plx_sysdep.h:154:47: error: ‘access_ok’ undeclared (first use in this function); did you mean ‘AccessType’?
+     #define Plx_access_ok                     access_ok
+                                               ^~~~~~~~~
+/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.c:1891:17: note: in expansion of macro ‘Plx_access_ok’
+             if (Plx_access_ok(
+                 ^~~~~~~~~~~~~
+/home/mr_halfword/PlxSdk-8.23/PlxSdk/Include/Plx_sysdep.h:154:47: note: each undeclared identifier is reported only once for each function it appears in
+     #define Plx_access_ok                     access_ok
+                                               ^~~~~~~~~
+/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.c:1891:17: note: in expansion of macro ‘Plx_access_ok’
+             if (Plx_access_ok(
+                 ^~~~~~~~~~~~~
+/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.c:1908:21: error: macro "access_ok" passed 3 arguments, but takes just 2
+                     ) == FALSE)
+                     ^
+make[2]: *** [scripts/Makefile.build:318: /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.o] Error 1
+make[1]: *** [Makefile:1585: _module_/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver] Error 2
+make: *** [/home/mr_halfword/PlxSdk-8.23/PlxSdk/Makefiles/Targets.def:46: BuildDriver] Error 2
+
+
+The compile errors in ApiFunc.c were resolved by applying the compability code suggestion from
+https://stackoverflow.com/a/65682486/4207678
+   "How to replace the recently abolished first parameter of macro "access_ok"?
+
+
+The module now compiles successfully:
+[mr_halfword@haswell-alma Driver]$ ./builddriver 9056
+
+
+Build: Plx9056
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- KER: ver 4.18.0-425.13.1.el8_7.x86_64
+- INC: /lib/modules/4.18.0-425.13.1.el8_7.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: 9056 Driver
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Dispatch.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Driver.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Eep_9000.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ModuleVersion.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/PciFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/SuppFunc.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Chip/9056/PlxChipApi.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Chip/9056/PlxChipFn.o
+  CC [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Chip/9056/PlxInterrupt.o
+  LD [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Plx9056.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Plx9056.mod.o
+  LD [M]  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Plx9056.ko
+
+Driver "Source.Plx9000/Output/Plx9056.ko" built successfully
+
+
+The patch for the above modifications has been saved in PlxSdk-8.23_AlmaLinux_8.7.patch
+
+
+1.4. Build PlxApi
+~~~~~~~~~~~~~~~~~
+
+Build the PlxApi:
+[mr_halfword@haswell-alma Driver]$ cd ~/PlxSdk-8.23/PlxSdk/PlxApi
+[mr_halfword@haswell-alma PlxApi]$ PLX_SDK_DIR=~/PlxSdk-8.23/PlxSdk make
+
+
+Build: PlxApi
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: API Library
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  Eep_8000.c
+CC  SdbComPort.c
+CC  Aardvark.c
+CC  I2cAaUsb.c
+CC  PlxApiDirect.c
+CC  SpiFlash.c
+CC  MdioSpliceUsb.c
+CC  PlxApi.c
+LIB PlxApi.a
+LIB PlxApi.so
+
+Libraries "Library/PlxApi.a" & "Library/PlxApi.so" built successfully
+
+
+1.5. Build sample application
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Build all the sample applications:
+[mr_halfword@haswell-alma PlxApi]$ cd ~/PlxSdk-8.23/PlxSdk
+[mr_halfword@haswell-alma PlxSdk]$ PLX_SDK_DIR=~/PlxSdk-8.23/PlxSdk make
+
+   ------------------
+
+Build: PlxApi
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: API Library
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+LIB PlxApi.a
+LIB PlxApi.so
+
+Libraries "Library/PlxApi.a" & "Library/PlxApi.so" built successfully
+
+   ------------------
+
+Build: ApiTest
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  ApiTest.c
+LNK ApiTest
+
+Application "App/ApiTest" built successfully
+
+   ------------------
+
+Build: DSlave
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  DSlave.c
+LNK DSlave
+
+Application "App/DSlave" built successfully
+
+   ------------------
+
+Build: DSlaveVa
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  DSlave_BypassApi.c
+LNK DSlaveVa
+
+Application "App/DSlaveVa" built successfully
+
+   ------------------
+
+Build: LocalToPciInt
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  LocalToPciInt.c
+LNK LocalToPciInt
+
+Application "App/LocalToPciInt" built successfully
+
+   ------------------
+
+Build: NT_DmaTest
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  NT_DmaTest.c
+CC  PlxDmaPerf.c
+LNK NT_DmaTest
+
+Application "App/NT_DmaTest" built successfully
+
+   ------------------
+
+Build: NT_LinkTest
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  NT_LinkTest.c
+LNK NT_LinkTest
+
+Application "App/NT_LinkTest" built successfully
+
+   ------------------
+
+Build: NTSample
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  NTSample.c
+LNK NTSample
+
+Application "App/NTSample" built successfully
+
+   ------------------
+
+Build: PerfMon
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PerfMonitor.c
+LNK PerfMon
+
+Application "App/PerfMon" built successfully
+
+   ------------------
+
+Build: PlxCm
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxLists.c
+CC  RegDefs.c
+CC  CmdLine.c
+CC  Monitor.c
+CC  MonCmds.c
+CC  PciDev.c
+LNK PlxCm
+
+Application "App/PlxCm" built successfully
+
+   ------------------
+
+Build: PlxDma
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PlxDma.c
+LNK PlxDma
+
+Application "App/PlxDma" built successfully
+
+   ------------------
+
+Build: PlxDmaPerf
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PlxDmaPerf.c
+LNK PlxDmaPerf
+
+Application "App/PlxDmaPerf" built successfully
+
+   ------------------
+
+Build: PlxDmaSglNoApi
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PlxDmaSglNoApi.c
+LNK PlxDmaSglNoApi
+
+Application "App/PlxDmaSglNoApi" built successfully
+
+   ------------------
+
+Build: PlxEep
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  PlxEep.c
+LNK PlxEep
+
+Application "App/PlxEep" built successfully
+
+   ------------------
+
+Build: PlxNotification
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: gcc
+- TYP: Sample App
+- PKG: PCI/PCIe SDK v8.23
+- CFG: Release
+
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/ConsFunc.c
+CC  /home/mr_halfword/PlxSdk-8.23/PlxSdk/Samples/Shared/PlxInit.c
+CC  PlxNotification.c
+LNK PlxNotification
+
+Application "App/PlxNotification" built successfully
+
+
+2. Using PlxSdk samples to access EEPROMs on the Sealevel COMM+2.LPCIe board (7205e)
+====================================================================================
+
+Load the PlxSvc Kernel module which is required to access the EEPROM on the
+"PEX 8111 PCI Express-to-PCI Bridge" part of the PEX8311:
+[mr_halfword@haswell-alma ~]$ cd ~/PlxSdk-8.23/PlxSdk/Bin/
+[mr_halfword@haswell-alma Bin]$ sudo ./Plx_load Svc
+
+Install: PlxSvc
+  Load module......... Ok (/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Output)
+  Verify load......... Ok
+  Get major number.... Ok (MajorID = 239)
+  Create node path.... Ok (/dev/plx)
+  Create nodes........ Ok (/dev/plx/PlxSvc)
+
+
+Load the Plx9056 Kernel module which is required to access the EEPROM on the
+"PCI9056 32-bit 66MHz PCI <-> IOBus Bridge" part of the PEX8311:
+[mr_halfword@haswell-alma Bin]$ sudo ./Plx_load 9056
+
+Install: Plx9056
+  Load module......... Ok (/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Output)
+  Verify load......... Ok
+  Get major number.... Ok (MajorID = 238)
+  Create node path.... Ok (/dev/plx already exists)
+  Create nodes........ Ok (/dev/plx/Plx9056)
+
+
+Start the PLX Console Monitor, which defaults to selecting the PLX 8111 bridge:
+[mr_halfword@haswell-alma Bin]$ ~/PlxSdk-8.23/PlxSdk/Samples/PlxCm/App/PlxCm
+Searching for devices...
+
+   # D Bs Dv F Pt Dev  Ven  Chip Rv I/M  Description
+ ------------------------------------------------------------------------------
+   0 0 00 00 0 -- 0100 8086  --  --  --  Host bridge / Root Complex
+   1 0 00 01 0 02 0101 8086  --  --  --  PCIe Root Complex Root Port
+   2 0 00 02 0 -- 0102 8086  --  --  --  Intel VGA display controller
+   3 0 00 16 0 -- 1C3A 8086  --  --  --  Communication controller
+   4 0 00 19 0 -- 1503 8086  --  --  --  Intel Ethernet controller
+   5 0 00 1A 0 -- 1C2D 8086  --  --  --  USB 2.0 IEHCI Host controller
+   6 0 00 1B 0 00 1C20 8086  --  --  --  HD Audio (HD-A) 1.0 device
+   7 0 00 1C 0 01 1C10 8086  --  --  --  PCIe Root Complex Root Port
+   8 0 00 1C 2 03 1C14 8086  --  --  --  PCIe Root Complex Root Port
+   9 0 00 1C 3 04 1C16 8086  --  --  --  PCIe Root Complex Root Port
+   A 0 00 1D 0 -- 1C26 8086  --  --  --  USB 2.0 IEHCI Host controller
+   B 0 00 1F 0 -- 1C4A 8086  --  --  --  ISA bridge
+   C 0 00 1F 2 -- 1C02 8086  --  --  --  SATA controller (AHCI interface)
+   D 0 00 1F 3 -- 1C22 8086  --  --  --  System Management Bus (SMBus) ctrlr
+   E 0 01 00 0 00 4001 1425  --  --  --  Ethernet controller
+   F 0 01 00 1 00 4001 1425  --  --  --  Ethernet controller
+  10 0 01 00 2 00 4001 1425  --  --  --  Ethernet controller
+  11 0 01 00 3 00 4001 1425  --  --  --  Ethernet controller
+  12 0 01 00 4 00 4401 1425  --  --  --  Ethernet controller
+  13 0 01 00 5 00 4501 1425  --  --  --  SCSI controller (Vendor-specific)
+  14 0 01 00 6 00 4601 1425  --  --  --  Fibre Channel controller
+  15 0 01 00 7 00 0000 1425  --  --  --  Ethernet controller
+  16 0 02 00 0 -- 8892 1283  --  --  --  PCI-to-PCI bridge (sub decode)
+=>17 0 04 00 0 00 8111 10B5 8111 BB  --  PLX PCIe <==> PCI bridge
+  18 0 05 04 0 -- 9056 10B5 9056 BA  --  PLX PCI <==> Local bus bridge
+  19 0 06 00 0 00 0194 1033  --  --  --  USB 1.1 Universal Host controller
+
+PLX Console Monitor (64-bit), v8.23 [Apr  2 2023]
+Copyright (c) Broadcom, Inc.
+
+
+Display the 8111 EEPROM contents:
+>eep
+
+   ------ 8111 EEPROM Header ------
+ Signature    : 5A [Valid]
+ Load Regs    : Yes
+ Load Sh Mem  : Yes
+ Registers    : 6 bytes (1 regs)
+
+   #    Port     Offset     Value
+ -----------------------------------
+   0     --       0034     00000050
+
+
+   --- Shared Memory (4 bytes) ---
+ 000: 0010 0020
+
+
+Change the selected device to the 9056 endpoint and display it's EEPROM contents:
+>dev 18
+Selected: [D0 05:04.0] 9056_10B5 [9056] - PLX PCI <==> Local bus bridge
+>eep
+ 000: 905610B5  Device ID | Vendor ID
+ 004: 068000AA  Base Class | Sub Class | Interface | Revision ID
+ 008: 00000100  Max_Lat | Min_Grant | Interrupt Pin | Interrupt Line
+ 00C: 00000000  Mailbox 0
+ 010: 00000000  Mailbox 1
+ 014: FFFFFFF0  Range for PCI-to-Local Address Space 0
+ 018: 03000001  Local Base Address (Remap) for PCI-to-Local Space 0
+ 01C: 09210007  Local Mode/DMA Arbitration
+ 020: 20308400  VPD Boundary | Big/Little Endian Descriptor
+ 024: 00000000  Range for PCI-to-Local Expansion ROM
+ 028: 00000000  Local Base Address for PCI-to-Local Expansion ROM and BREQ
+ 02C: 42000300  Local Bus Region Descriptor (Space 0) for PCI-to-Local Access
+ 030: 00000000  Range for Direct Master-to-PCI
+ 034: 60000000  Local Base Address for Direct Master-to-PCI Memory
+ 038: 50000000  Local Base Address for Direct Master-to-PCI IO/CFG
+ 03C: 00000000  PCI Base Address for Direct Master-to-PCI
+ 040: 00000000  PCI Configuration Address for Direct Master-to-PCI IO/CFG
+ 044: 319810B5  Subsystem Device ID | Subsystem Vendor ID
+ 048: FFFFFFF0  Range for PCI-to-Local Address Space 1
+ 04C: 03100001  Local Base Address (Remap) for PCI-to-Local Space 1
+ 050: 00000000  Local Bus Region Descriptor (Space 1) for PCI-to-Local Access
+ 054: 00004C00  Hot Swap Control/Status | Next Item Pointer | Capability ID
+ 058: 00000000  PCI Arbiter Control                                   
+ 05C: 48010001  Power Management Capability | Next Item Pointer | Capability ID
+ 060: 00000000  Power Management Control/Status
+
+
+The PlxEep sample was used to save the contents of the 8311 EEPROM:
+[mr_halfword@haswell-alma Bin]$ ~/PlxSdk-8.23/PlxSdk/Samples/PlxEep/App/PlxEep -s ~/plx_poll_mode_driver/plx_poll_mode_driver/8111_eeprom_initial.bin
+
+		     1. 9056 10b5  [9056 BA @ 05:04.0]
+		     2. 8111 10b5  [8111 BB @ 04:00.0]
+		     0. Cancel
+
+	   Device selection --> 2
+
+Selected: 8111 10b5 [04:00.0]
+
+Get EEPROM data size.. Ok (16B)
+Read EEPROM data...... Ok
+Write data to file.... Ok (/home/mr_halfword/plx_poll_mode_driver/plx_poll_mode_driver/8111_eeprom_initial.bin)
+ -- Complete (0.01 sec) --
+
+
+The bytes in the saved EEPROM content:
+[mr_halfword@haswell-alma Bin]$ od -t x1 ~/plx_poll_mode_driver/plx_poll_mode_driver/8111_eeprom_initial.bin 
+0000000 5a 03 06 00 34 00 50 00 00 00 04 00 10 00 20 00
+0000020
+
+The bytes in 8311_eeprom.bin can be decoded using the section "4.2.1 Serial EEPROM Data Format" of the PEX 8311AA Data Book,
+and match the decoded content reported by the PlxCm sample.
+
+
+3. Enabling the 8311 Shared Memory BAR
+======================================
+
+The PEX8311 Data Book describes a 8-KB internal shared memory, which can be accessed via BAR 0 in the
+"PEX 8111 PCI Express-to-PCI Bridge" part of the PEX8311.
+
+
+3.1. Bridge BAR= containing shared memory not enumerated by default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The initial state of the Sealevel COMM+2.LPCIe board is that no BAR0 enumerates in the "PEX 8111 PCI Express-to-PCI Bridge" part:
+
+mr_halfword@haswell-alma Bin]$ lspci -v -d 10b5:
+04:00.0 PCI bridge: PLX Technology, Inc. PEX 8111 PCI Express-to-PCI Bridge (rev 21) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0, IRQ 18
+	Bus: primary=04, secondary=05, subordinate=05, sec-latency=32
+	I/O behind bridge: [disabled]
+	Memory behind bridge: fe100000-fe1fffff [size=1M]
+	Prefetchable memory behind bridge: [disabled]
+	Capabilities: <access denied>
+
+05:04.0 Bridge: PLX Technology, Inc. PCI9056 32-bit 66MHz PCI <-> IOBus Bridge (rev aa)
+	Subsystem: PLX Technology, Inc. Device 3198
+	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 18
+	Memory at fe102000 (32-bit, non-prefetchable) [size=512]
+	Memory at fe101000 (32-bit, non-prefetchable) [size=16]
+	Memory at fe100000 (32-bit, non-prefetchable) [size=16]
+	Capabilities: <access denied>
+	Kernel driver in use: Plx9056
+
+Bit 1 "PCI Express Base Address 0 Enable" in the "Offset 48h PECS_DEVSPECCTL Device-Specific Control"
+needs to be set to cause BAR0 to enumerate. The default value of the bit is zero.
+
+Reading back the PECS_DEVSPECCTL register confirms bit 1 is zero:
+[mr_halfword@haswell-alma Bin]$ sudo setpci -d 10b5:8111 48.l
+[sudo] password for mr_halfword: 
+000e2010
+
+
+3.2. Temporarily enabling bridge BAR0 to be enumerated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After Linux had booted modified the PECS_DEVSPECCTL register to set bit 1:
+[mr_halfword@haswell-alma Bin]$ sudo setpci -d 10b5:8111 48.l
+000e2010
+[mr_halfword@haswell-alma Bin]$ sudo setpci -d 10b5:8111 48.l=000e2012
+
+Removed the 8311 device:
+[mr_halfword@haswell-alma Bin]$ echo 1 | sudo tee /sys/bus/pci/devices/0000\:04\:00.0/remove
+1
+
+And re-scanned the PCIe bus:
+[mr_halfword@haswell-alma Bin]$ echo 1 | sudo tee /sys/bus/pci/rescan 
+1
+
+And BAR0 in the bridge has now enumerated:
+[mr_halfword@haswell-alma Bin]$ lspci -v -d 10b5:
+04:00.0 PCI bridge: PLX Technology, Inc. PEX 8111 PCI Express-to-PCI Bridge (rev 21) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0, IRQ 18
+	Memory at dfa00000 (64-bit, prefetchable) [size=64K]
+	Bus: primary=04, secondary=05, subordinate=05, sec-latency=32
+	I/O behind bridge: [disabled]
+	Memory behind bridge: fe100000-fe1fffff [size=1M]
+	Prefetchable memory behind bridge: [disabled]
+	Capabilities: <access denied>
+
+05:04.0 Bridge: PLX Technology, Inc. PCI9056 32-bit 66MHz PCI <-> IOBus Bridge (rev aa)
+	Subsystem: PLX Technology, Inc. Device 3198
+	Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 18
+	Memory at fe100000 (32-bit, non-prefetchable) [size=512]
+	Memory at fe100200 (32-bit, non-prefetchable) [size=16]
+	Memory at fe100210 (32-bit, non-prefetchable) [size=16]
+	Capabilities: <access denied>
+	Kernel driver in use: Plx9056
+
+[mr_halfword@haswell-alma Bin]$ ~/fpga_sio/software_tests/eclipse_project/bin/debug/dump_info/dump_info_pciutils 10b5
+Access method : linux-sysfs
+domain=0000 bus=04 dev=00 func=00
+  vendor_id=10b5 (PLX Technology, Inc.) device_id=8111 (PEX 8111 PCI Express-to-PCI Bridge) subvendor_id=0000 subdevice_id=0000
+  control: I/O+ Mem+ BusMaster+
+  bar[0] base_addr=dfa00000 size=10000 is_IO=0 is_prefetchable=1 is_64=1
+domain=0000 bus=05 dev=04 func=00
+  vendor_id=10b5 (PLX Technology, Inc.) device_id=9056 (PCI9056 32-bit 66MHz PCI <-> IOBus Bridge) subvendor_id=10b5 subdevice_id=3198
+  control: I/O+ Mem+ BusMaster+
+  Driver: Plx9056
+  bar[0] base_addr=fe100000 size=200 is_IO=0 is_prefetchable=0 is_64=0
+  bar[2] base_addr=fe100200 size=10 is_IO=0 is_prefetchable=0 is_64=0
+  bar[3] base_addr=fe100210 size=10 is_IO=0 is_prefetchable=0 is_64=0
+
+
+3.3 Change 8111 EEPROM to enable bridge BAR0 to be enumerated
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The okteta hex editor was used to create a modified version of the original 8111_eeprom_initial.bin EEPROM content, to insert
+a write to the PECS_DEVSPECCTL Device-Specific Control register at offset 0048h to write the value of 00000002h to set
+bit 1 "PCI Express Base Address 0 Enable"
+
+The PECS_DEVSPECCTL register is a mix of bits:
+- Writeable by the EE
+- Read-only bits
+- Reserved bits
+
+The only bit which needs to be written as non-zero by the EEPROM contents is bit 1 "PCI Express Base Address 0 Enable".
+
+The generated EEPROM configuration file:
+[mr_halfword@haswell-alma plx_poll_mode_driver]$ od -Ax -t x1 8111_eeprom_enable_BAR0.bin 
+000000 5a 03 0c 00 34 00 50 00 00 00 48 00 02 00 00 00
+000010 04 00 10 00 20 00
+000016
+
+Programmed the modified EEPROM contents using the PlxEep application from the PlxSdk:
+[mr_halfword@haswell-alma ~]$ cd ~/PlxSdk-8.23/PlxSdk/Bin/
+[mr_halfword@haswell-alma Bin]$ sudo ./Plx_load Svc
+[sudo] password for mr_halfword: 
+
+Install: PlxSvc
+  Load module......... Ok (/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.PlxSvc/Output)
+  Verify load......... Ok
+  Get major number.... Ok (MajorID = 239)
+  Create node path.... Ok (/dev/plx)
+  Create nodes........ Ok (/dev/plx/PlxSvc)
+
+[mr_halfword@haswell-alma Bin]$ sudo ./Plx_load 9056
+
+Install: Plx9056
+  Load module......... Ok (/home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/Output)
+  Verify load......... Ok
+  Get major number.... Ok (MajorID = 238)
+  Create node path.... Ok (/dev/plx already exists)
+  Create nodes........ Ok (/dev/plx/Plx9056)
+
+[mr_halfword@haswell-alma Bin]$ ~/PlxSdk-8.23/PlxSdk/Samples/PlxEep/App/PlxEep -l ~/plx_poll_mode_driver/plx_poll_mode_driver/8111_eeprom_enable_BAR0.bin 
+
+		     1. 9056 10b5  [9056 BA @ 05:04.0]
+		     2. 8111 10b5  [8111 BB @ 04:00.0]
+		     0. Cancel
+
+	   Device selection --> 2
+
+Selected: 8111 10b5 [04:00.0]
+
+Load EEPROM file... Ok (22B)
+Program EEPROM..... Ok 
+ -- Complete (0.05 sec) --
+
+
+After programming the EEPROM power cycled the PC. This shows BAR0 in the bridge is now enumerating:
+[mr_halfword@haswell-alma ~]$ lspci -v -d 10b5:
+04:00.0 PCI bridge: PLX Technology, Inc. PEX 8111 PCI Express-to-PCI Bridge (rev 21) (prog-if 00 [Normal decode])
+	Flags: bus master, fast devsel, latency 0, IRQ 5
+	Memory at f0000000 (64-bit, prefetchable) [size=64K]
+	Bus: primary=04, secondary=05, subordinate=05, sec-latency=32
+	I/O behind bridge: [disabled]
+	Memory behind bridge: fe100000-fe1fffff [size=1M]
+	Prefetchable memory behind bridge: [disabled]
+	Capabilities: <access denied>
+
+05:04.0 Bridge: PLX Technology, Inc. PCI9056 32-bit 66MHz PCI <-> IOBus Bridge (rev aa)
+	Subsystem: PLX Technology, Inc. Device 3198
+	Flags: 66MHz, medium devsel, IRQ 5
+	Memory at fe102000 (32-bit, non-prefetchable) [disabled] [size=512]
+	Memory at fe101000 (32-bit, non-prefetchable) [disabled] [size=16]
+	Memory at fe100000 (32-bit, non-prefetchable) [disabled] [size=16]
+	Capabilities: <access denied>
+
+
+And the PlxCm application decodes the 8111 EEPROM as having the expected register contents - compared to the output from
+the original EEPROM content shows a 2nd register at offset 0048 (PECS_DEVSPECCTL):
+[mr_halfword@haswell-alma Bin]$ ~/PlxSdk-8.23/PlxSdk/Samples/PlxCm/App/PlxCm
+Searching for devices...
+
+   # D Bs Dv F Pt Dev  Ven  Chip Rv I/M  Description
+ ------------------------------------------------------------------------------
+   0 0 00 00 0 -- 0100 8086  --  --  --  Host bridge / Root Complex
+   1 0 00 01 0 02 0101 8086  --  --  --  PCIe Root Complex Root Port
+   2 0 00 02 0 -- 0102 8086  --  --  --  Intel VGA display controller
+   3 0 00 16 0 -- 1C3A 8086  --  --  --  Communication controller
+   4 0 00 19 0 -- 1503 8086  --  --  --  Intel Ethernet controller
+   5 0 00 1A 0 -- 1C2D 8086  --  --  --  USB 2.0 IEHCI Host controller
+   6 0 00 1B 0 00 1C20 8086  --  --  --  HD Audio (HD-A) 1.0 device
+   7 0 00 1C 0 01 1C10 8086  --  --  --  PCIe Root Complex Root Port
+   8 0 00 1C 2 03 1C14 8086  --  --  --  PCIe Root Complex Root Port
+   9 0 00 1C 3 04 1C16 8086  --  --  --  PCIe Root Complex Root Port
+   A 0 00 1D 0 -- 1C26 8086  --  --  --  USB 2.0 IEHCI Host controller
+   B 0 00 1F 0 -- 1C4A 8086  --  --  --  ISA bridge
+   C 0 00 1F 2 -- 1C02 8086  --  --  --  SATA controller (AHCI interface)
+   D 0 00 1F 3 -- 1C22 8086  --  --  --  System Management Bus (SMBus) ctrlr
+   E 0 01 00 0 00 4001 1425  --  --  --  Ethernet controller
+   F 0 01 00 1 00 4001 1425  --  --  --  Ethernet controller
+  10 0 01 00 2 00 4001 1425  --  --  --  Ethernet controller
+  11 0 01 00 3 00 4001 1425  --  --  --  Ethernet controller
+  12 0 01 00 4 00 4401 1425  --  --  --  Ethernet controller
+  13 0 01 00 5 00 4501 1425  --  --  --  SCSI controller (Vendor-specific)
+  14 0 01 00 6 00 4601 1425  --  --  --  Fibre Channel controller
+  15 0 01 00 7 00 0000 1425  --  --  --  Ethernet controller
+  16 0 02 00 0 -- 8892 1283  --  --  --  PCI-to-PCI bridge (sub decode)
+=>17 0 04 00 0 00 8111 10B5 8111 BB  --  PLX PCIe <==> PCI bridge
+  18 0 05 04 0 -- 9056 10B5 9056 BA  --  PLX PCI <==> Local bus bridge
+  19 0 06 00 0 00 0194 1033  --  --  --  USB 1.1 Universal Host controller
+
+PLX Console Monitor (64-bit), v8.23 [Apr  2 2023]
+Copyright (c) Broadcom, Inc.
+
+>eep
+
+   ------ 8111 EEPROM Header ------
+ Signature    : 5A [Valid]
+ Load Regs    : Yes
+ Load Sh Mem  : Yes
+ Registers    : 12 bytes (2 regs)
+
+   #    Port     Offset     Value
+ -----------------------------------
+   0     --       0034     00000050
+   1     --       0048     00000002
+
+
+   --- Shared Memory (4 bytes) ---
+ 000: 0010 0020
+
+

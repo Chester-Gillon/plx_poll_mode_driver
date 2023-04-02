@@ -40,14 +40,14 @@ Unpack the PlxSdr source tarball:
 [mr_halfword@sandy-centos PlxSdk-8.23]$ tar xf PlxSdk.tar 
 
 
-[mr_halfword@sandy-centos PlxSdk-8.23]$ cd PlxSdk/Driver/
-[mr_halfword@sandy-centos Driver]$ ./builddriver 9056
-
-
 1.3. Build Kernel modules
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Build the Plx9056.ko Kernel module, which for the "PCI9056 32-bit 66MHz PCI <-> IOBus Bridge" part of the PEX8311:
+[mr_halfword@sandy-centos PlxSdk-8.23]$ cd PlxSdk/Driver/
+[mr_halfword@sandy-centos Driver]$ ./builddriver 9056
+
+
 Build: Plx9056
 
 - PLA: Scientific Linux release 6.10 (Carbon)

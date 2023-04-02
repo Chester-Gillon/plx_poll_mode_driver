@@ -15,7 +15,7 @@ Create a directory to perform the build:
 [mr_halfword@haswell-alma GscApi-1.6.6]$ mkdir buildGsc
 
 
-Configure the build, us9ing the defaults, and the GCC 8.5.0 installed with AlmaLinux 8.6:
+Configure the build, usiing the defaults, and the GCC 8.5.0 installed with AlmaLinux 8.6:
 [mr_halfword@haswell-alma GscApi-1.6.6]$ cd buildGsc/
 [mr_halfword@haswell-alma buildGsc]$ ../configure
 checking for a BSD-compatible install... /usr/bin/install -c
@@ -624,3 +624,74 @@ vermagic:       4.18.0-372.26.1.el8_6.x86_64 SMP mod_unload modversions
 
 
 The patch for the above modifications has been saved in gsc_api_1.6.10.2_AlmaLinux_8.6.patch
+
+
+== Build under AlmaLinux 8.7 ==
+
+The driver was re-built following an update to AlmaLinux 8.7 with Kernel 4.18.0-425.10.1.el8_7.x86_64
+
+Used the GscApi-1.6.10.2 as patched with gsc_api_1.6.10.2_AlmaLinux_8.6.patch
+
+The Plx9056 Kernel module was built successfully:
+[mr_halfword@haswell-alma Driver]$ cd ~/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/
+[mr_halfword@haswell-alma Driver]$ PLX_SDK_DIR=~/GscApi-1.6.10.2/gsc_api/PlxSdk ./builddriver 9056
+Building: Plx9056
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- KER: 4.18.0-425.10.1.el8_7.x86_64
+- INC: /lib/modules/4.18.0-425.10.1.el8_7.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: Gcc
+- TYP: Driver
+- PLX: 9056
+- CFG: Release
+
+make[1]: Entering directory '/usr/src/kernels/4.18.0-425.10.1.el8_7.x86_64'
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Dispatch.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Driver.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Eep_9000.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ModuleVersion.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/PciFunc.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/SuppFunc.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Chip/9056/PlxChipApi.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Chip/9056/PlxChipFn.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Chip/9056/PlxInterrupt.o
+  LD [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Plx9056.o
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Plx9056.mod.o
+  LD [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Plx9056.ko
+make[1]: Leaving directory '/usr/src/kernels/4.18.0-425.10.1.el8_7.x86_64'
+
+
+Device driver "Plx9056/Plx9056.ko" built sucessfully.
+
+But got an error trying to builf the Plx8311 Kernel module:
+[mr_halfword@haswell-alma Driver]$ PLX_SDK_DIR=~/GscApi-1.6.10.2/gsc_api/PlxSdk ./builddriver 8311
+Building: Plx8311
+
+- PLA: AlmaLinux release 8.7 (Stone Smilodon)
+- KER: 4.18.0-425.10.1.el8_7.x86_64
+- INC: /lib/modules/4.18.0-425.10.1.el8_7.x86_64/build/include
+- CPU: x86_64 (64-bit Little Endian)
+- CMP: Gcc
+- TYP: Driver
+- PLX: 8311
+- CFG: Release
+
+make[1]: Entering directory '/usr/src/kernels/4.18.0-425.10.1.el8_7.x86_64'
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ApiFunc.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Dispatch.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Driver.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Eep_9000.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/ModuleVersion.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/PciFunc.o
+  CC [M]  /home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/SuppFunc.o
+make[2]: *** No rule to make target '/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Source.Plx9000/Chip/8311/PlxChipApi.o', needed by '/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver/Plx8311.o'.  Stop.
+make[1]: *** [Makefile:1585: _module_/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Driver] Error 2
+make[1]: Leaving directory '/usr/src/kernels/4.18.0-425.10.1.el8_7.x86_64'
+make: *** [/home/mr_halfword/GscApi-1.6.10.2/gsc_api/PlxSdk/Linux/Makefiles/Targets.def:63: BuildDriver] Error 2
+
+The PlxSdk/Linux/Driver/Source.Plx9000/Chip/8311 directory doesn't exist in the GscApi-1.6.10.2 release.
+
