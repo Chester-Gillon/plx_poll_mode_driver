@@ -21,6 +21,7 @@ https://docs.broadcom.com/docs-and-downloads/plx-files/Broadcom_PCI_PCIe_SDK_Lin
 ~~~~~~~~~~~~~~~~~~~~~
 
 Create a directory to be used for the build:
+[mr_halfword@haswell-alma ~]$ mkdir ~/PlxSdk-8.23/
 [mr_halfword@haswell-alma ~]$ cd ~/PlxSdk-8.23/
 [mr_halfword@haswell-alma PlxSdk-8.23]$ 
 
@@ -833,4 +834,278 @@ Copyright (c) Broadcom, Inc.
    --- Shared Memory (4 bytes) ---
  000: 0010 0020
 
+
+4. Install patch on a different AlmaLinux 8.7 PC
+================================================
+
+The patch was saved in Normal Format by Beyond Compare and is in a format which can't seem to get patch to automatically
+extract the (single) pathname to extract.
+
+Started by unpacking the original source:
+[mr_halfword@skylake-alma ~]$ mkdir ~/PlxSdk-8.23/
+[mr_halfword@skylake-alma ~]$ cd ~/PlxSdk-8.23/Driver "Source.Plx9000/Output/Plx9056.ko" built sucessfully
+
+[mr_halfword@skylake-alma PlxSdk-8.23]$ unzip ~/Downloads/Broadcom_PCI_PCIe_SDK_Linux_v8_23_Final_2020-11-18.zip
+Archive:  /home/mr_halfword/Downloads/Broadcom_PCI_PCIe_SDK_Linux_v8_23_Final_2020-11-18.zip
+  inflating: PlxSdk.tar              
+  inflating: Documentation/PLX API DLL with Visual Basic.htm  
+  inflating: Documentation/PLX_LegacyAPI.pdf  
+  inflating: Documentation/PLX_SDK_General_FAQ.pdf  
+  inflating: Documentation/PLX_SDK_Linux_Release_Notes.htm  
+  inflating: Documentation/PLX_SDK_Release_Notes.htm  
+  inflating: Documentation/PlxRdkReferenceGuide.htm  
+  inflating: Documentation/PlxSdkUserManual.pdf  
+[mr_halfword@skylake-alma PlxSdk-8.23]$ tar xf PlxSdk.tar
+
+To apply the patch had to specify the filename to patch on the command line:
+[mr_halfword@skylake-alma PlxSdk-8.23]$ patch --verbose PlxSdk/Driver/Source.Plx9000/ApiFunc.c ~/plx_poll_mode_driver/plx_poll_mode_driver/PlxSdk-8.23_AlmaLinux_8.7.patch
+Hmm...  Looks like a normal diff to me...
+The text leading up to this was:
+--------------------------
+|diff -r /home/mr_halfword/Downloads/Broadcom_PCI_PCIe_SDK_Linux_v8_23_Final_2020-11-18.zip/PlxSdk.tar/PlxSdk/Driver/Source.Plx9000/ApiFunc.c /home/mr_halfword/PlxSdk-8.23/PlxSdk/Driver/Source.Plx9000/ApiFunc.c
+--------------------------
+patching file PlxSdk/Driver/Source.Plx9000/ApiFunc.c
+Using Plan A...
+Hunk #1 succeeded at 62.
+Hunk #2 succeeded at 1932.
+Hunk #3 succeeded at 1944.
+done
+
+
+The modules were built successfully:
+[mr_halfword@skylake-alma Driver]$ ./builddriver Svc
+<<snip>>
+Driver "Source.PlxSvc/Output/PlxSvc.ko" built sucessfully
+
+[mr_halfword@skylake-alma Driver]$ ./builddriver 9056
+<<snip>>
+Driver "Source.Plx9000/Output/Plx9056.ko" built sucessfully
+
+
+The libraries and sample applications were also built successfully:
+[mr_halfword@skylake-alma Driver]$ cd ~/PlxSdk-8.23/PlxSdk/PlxApi
+[mr_halfword@skylake-alma PlxApi]$ PLX_SDK_DIR=~/PlxSdk-8.23/PlxSdk make
+<<snip>>
+
+[mr_halfword@skylake-alma PlxApi]$ cd ~/PlxSdk-8.23/PlxSdk
+[mr_halfword@skylake-alma PlxSdk]$ PLX_SDK_DIR=~/PlxSdk-8.23/PlxSdk make
+<<snip>>
+Application "App/PlxNotification" built successfully
+
+
+5. Change 8111 EEPROM to enable 64-bit capability to allow DMA to address above 4GB
+===================================================================================
+
+The default for the PECS_PREBASE register is that the "Prefetchable Base Address Capability" field in bits 3:0
+is 0000b which means 32-bit addressing, resulting in the DMA being unable to address above 4GB.
+
+Created a new 8111_eeprom_enable-BAR0-64bit_capability.bin file which sets the register at offset 0x24 to 1:
+[mr_halfword@skylake-alma plx_poll_mode_driver]$ od -Ax -t x1 8111_eeprom_enable-BAR0-64bit_capability.bin 
+000000 5a 03 12 00 34 00 50 00 00 00 48 00 02 00 00 00
+000010 24 00 01 00 00 00 04 00 10 00 20 00
+00001c
+
+This should set the "Prefetchable Base Address Capability" field in PECS_PREBASE to 0001b to select 64-bit addressing.
+Since the EEPROM format only allows 32-bit register writes the above will write to the PECS_PREBASE and PECS_PRELIMIT.
+The other fields in PECS_PREBASE and PECS_PRELIMIT should be set during PCIe enumeration so the values set by the EEPROM
+don't matter.
+
+
+Programmed the modified EEPROM file with:
+[mr_halfword@skylake-alma Bin]$ ~/PlxSdk-8.23/PlxSdk/Samples/PlxEep/App/PlxEep -l ~/plx_poll_mode_driver/plx_poll_mode_driver/8111_eeprom_enable-BAR0-64bit_capability.bin 
+
+		     1. 9056 10b5  [9056 BA @ 2E:04.0]
+		     2. 8111 10b5  [8111 BB @ 2D:00.0]
+		     0. Cancel
+
+	   Device selection --> 2
+
+Selected: 8111 10b5 [2D:00.0]
+
+Load EEPROM file... Ok (28B)
+Program EEPROM..... Ok 
+ -- Complete (0.09 sec) --
+
+
+After rebooting, PlxCm showed the expected EEPROM content:
+[mr_halfword@skylake-alma Bin]$ ~/PlxSdk-8.23/PlxSdk/Samples/PlxCm/App/PlxCm
+Searching for devices...
+
+   # D Bs Dv F Pt Dev  Ven  Chip Rv I/M  Description
+ ------------------------------------------------------------------------------
+   0 0 00 00 0 00 2020 8086  --  --  --  PCIe Root Complex Root Port
+   1 0 00 04 0 00 2021 8086  --  --  --  Other system peripheral
+   2 0 00 04 1 00 2021 8086  --  --  --  Other system peripheral
+   3 0 00 04 2 00 2021 8086  --  --  --  Other system peripheral
+   4 0 00 04 3 00 2021 8086  --  --  --  Other system peripheral
+   5 0 00 04 4 00 2021 8086  --  --  --  Other system peripheral
+   6 0 00 04 5 00 2021 8086  --  --  --  Other system peripheral
+   7 0 00 04 6 00 2021 8086  --  --  --  Other system peripheral
+   8 0 00 04 7 00 2021 8086  --  --  --  Other system peripheral
+   9 0 00 05 0 00 2024 8086  --  --  --  Other system peripheral
+   A 0 00 05 2 00 2025 8086  --  --  --  Other system peripheral
+   B 0 00 05 4 00 2026 8086  --  --  --  I/O(x) APIC interrupt contoller
+   C 0 00 08 0 00 2014 8086  --  --  --  Other system peripheral
+   D 0 00 08 1 -- 2015 8086  --  --  --  Perfomance counters
+   E 0 00 08 2 00 2016 8086  --  --  --  Other system peripheral
+   F 0 00 14 0 -- A2AF 8086  --  --  --  USB 1.1 Universal Host controller
+  10 0 00 14 2 -- A2B1 8086  --  --  --  Signal processing controller (DSP)
+  11 0 00 17 0 -- 2826 8086  --  --  --  RAID controller
+  12 0 00 1B 0 15 A2EB 8086  --  --  --  PCIe Root Complex Root Port
+  13 0 00 1C 0 03 A292 8086  --  --  --  PCIe Root Complex Root Port
+  14 0 00 1C 4 05 A294 8086  --  --  --  PCIe Root Complex Root Port
+  15 0 00 1D 0 09 A298 8086  --  --  --  PCIe Root Complex Root Port
+  16 0 00 1F 0 -- A2D3 8086  --  --  --  ISA bridge
+  17 0 00 1F 2 -- A2A1 8086  --  --  --  Memory controller
+  18 0 00 1F 3 -- A2F0 8086  --  --  --  HD Audio (HD-A) 1.0 device
+  19 0 00 1F 4 -- A2A3 8086  --  --  --  System Management Bus (SMBus) ctrlr
+  1A 0 00 1F 5 -- A2A4 8086  --  --  --  Unknown/Pre-PCI v2.0 Device
+  1B 0 00 1F 6 -- 15B7 8086  --  --  --  Intel Ethernet controller
+  1C 0 01 00 0 00 1C30 10DE  --  --  --  NVidia VGA display controller
+  1D 0 01 00 1 00 10F1 10DE  --  --  --  HD Audio (HD-A) 1.0 device
+  1E 0 02 00 0 00 1533 8086  --  --  --  Intel Ethernet controller
+  1F 0 09 00 0 00 3253 1C00  --  --  --  16850-compatible serial controller
+  20 0 14 00 0 01 2030 8086  --  --  --  PCIe Root Complex Root Port
+  21 0 14 05 0 00 2034 8086  --  --  --  Other system peripheral
+  22 0 14 05 2 00 2035 8086  --  --  --  Other system peripheral
+  23 0 14 05 4 00 2036 8086  --  --  --  I/O(x) APIC interrupt contoller
+  24 0 14 08 0 -- 208D 8086  --  --  --  Other system peripheral
+  25 0 14 08 1 -- 208D 8086  --  --  --  Other system peripheral
+  26 0 14 08 2 -- 208D 8086  --  --  --  Other system peripheral
+  27 0 14 08 3 -- 208D 8086  --  --  --  Other system peripheral
+  28 0 14 08 4 -- 208D 8086  --  --  --  Other system peripheral
+  29 0 14 08 5 -- 208D 8086  --  --  --  Other system peripheral
+  2A 0 14 08 6 -- 208D 8086  --  --  --  Other system peripheral
+  2B 0 14 08 7 -- 208D 8086  --  --  --  Other system peripheral
+  2C 0 14 09 0 -- 208D 8086  --  --  --  Other system peripheral
+  2D 0 14 09 1 -- 208D 8086  --  --  --  Other system peripheral
+  2E 0 14 0E 0 -- 208E 8086  --  --  --  Other system peripheral
+  2F 0 14 0E 1 -- 208E 8086  --  --  --  Other system peripheral
+  30 0 14 0E 2 -- 208E 8086  --  --  --  Other system peripheral
+  31 0 14 0E 3 -- 208E 8086  --  --  --  Other system peripheral
+  32 0 14 0E 4 -- 208E 8086  --  --  --  Other system peripheral
+  33 0 14 0E 5 -- 208E 8086  --  --  --  Other system peripheral
+  34 0 14 0E 6 -- 208E 8086  --  --  --  Other system peripheral
+  35 0 14 0E 7 -- 208E 8086  --  --  --  Other system peripheral
+  36 0 14 0F 0 -- 208E 8086  --  --  --  Other system peripheral
+  37 0 14 0F 1 -- 208E 8086  --  --  --  Other system peripheral
+  38 0 14 1D 0 -- 2054 8086  --  --  --  Other system peripheral
+  39 0 14 1D 1 -- 2055 8086  --  --  --  Other system peripheral
+  3A 0 14 1D 2 -- 2056 8086  --  --  --  Other system peripheral
+  3B 0 14 1D 3 -- 2057 8086  --  --  --  Other system peripheral
+  3C 0 14 1E 0 -- 2080 8086  --  --  --  Other system peripheral
+  3D 0 14 1E 1 -- 2081 8086  --  --  --  Other system peripheral
+  3E 0 14 1E 2 -- 2082 8086  --  --  --  Other system peripheral
+  3F 0 14 1E 3 -- 2083 8086  --  --  --  Other system peripheral
+  40 0 14 1E 4 -- 2084 8086  --  --  --  Other system peripheral
+  41 0 14 1E 5 -- 2085 8086  --  --  --  Other system peripheral
+  42 0 14 1E 6 -- 2086 8086  --  --  --  Other system peripheral
+  43 0 15 00 0 00 7024 10EE  --  --  --  RAM memory controller
+  44 0 20 00 0 05 2030 8086  --  --  --  PCIe Root Complex Root Port
+  45 0 20 05 0 00 2034 8086  --  --  --  Other system peripheral
+  46 0 20 05 2 00 2035 8086  --  --  --  Other system peripheral
+  47 0 20 05 4 00 2036 8086  --  --  --  I/O(x) APIC interrupt contoller
+  48 0 20 08 0 00 2066 8086  --  --  --  Other system peripheral
+  49 0 20 09 0 00 2066 8086  --  --  --  Other system peripheral
+  4A 0 20 0A 0 00 2040 8086  --  --  --  Other system peripheral
+  4B 0 20 0A 1 00 2041 8086  --  --  --  Other system peripheral
+  4C 0 20 0A 2 00 2042 8086  --  --  --  Other system peripheral
+  4D 0 20 0A 3 00 2043 8086  --  --  --  Other system peripheral
+  4E 0 20 0A 4 00 2044 8086  --  --  --  Other system peripheral
+  4F 0 20 0A 5 00 2045 8086  --  --  --  Other system peripheral
+  50 0 20 0A 6 00 2046 8086  --  --  --  Other system peripheral
+  51 0 20 0A 7 00 2047 8086  --  --  --  Other system peripheral
+  52 0 20 0B 0 00 2048 8086  --  --  --  Other system peripheral
+  53 0 20 0B 1 00 2049 8086  --  --  --  Other system peripheral
+  54 0 20 0B 2 00 204A 8086  --  --  --  Other system peripheral
+  55 0 20 0B 3 00 204B 8086  --  --  --  Other system peripheral
+  56 0 20 0C 0 00 2040 8086  --  --  --  Other system peripheral
+  57 0 20 0C 1 00 2041 8086  --  --  --  Other system peripheral
+  58 0 20 0C 2 00 2042 8086  --  --  --  Other system peripheral
+  59 0 20 0C 3 00 2043 8086  --  --  --  Other system peripheral
+  5A 0 20 0C 4 00 2044 8086  --  --  --  Other system peripheral
+  5B 0 20 0C 5 00 2045 8086  --  --  --  Other system peripheral
+  5C 0 20 0C 6 00 2046 8086  --  --  --  Other system peripheral
+  5D 0 20 0C 7 00 2047 8086  --  --  --  Other system peripheral
+  5E 0 20 0D 0 00 2048 8086  --  --  --  Other system peripheral
+  5F 0 20 0D 1 00 2049 8086  --  --  --  Other system peripheral
+  60 0 20 0D 2 00 204A 8086  --  --  --  Other system peripheral
+  61 0 20 0D 3 00 204B 8086  --  --  --  Other system peripheral
+  62 0 21 00 0 00 1015 15B3  --  --  --  Mellanox Ethernet controller
+  63 0 21 00 1 00 1015 15B3  --  --  --  Mellanox Ethernet controller
+  64 0 2C 00 0 09 2030 8086  --  --  --  PCIe Root Complex Root Port
+  65 0 2C 02 0 0B 2032 8086  --  --  --  PCIe Root Complex Root Port
+  66 0 2C 03 0 0C 2033 8086  --  --  --  PCIe Root Complex Root Port
+  67 0 2C 05 0 00 2034 8086  --  --  --  Other system peripheral
+  68 0 2C 05 2 00 2035 8086  --  --  --  Other system peripheral
+  69 0 2C 05 4 00 2036 8086  --  --  --  I/O(x) APIC interrupt contoller
+  6A 0 2C 12 0 00 204C 8086  --  --  --  Perfomance counters
+  6B 0 2C 12 1 -- 204D 8086  --  --  --  Perfomance counters
+  6C 0 2C 12 2 -- 204E 8086  --  --  --  Other system peripheral
+  6D 0 2C 15 0 -- 2018 8086  --  --  --  Other system peripheral
+  6E 0 2C 16 0 -- 2018 8086  --  --  --  Other system peripheral
+  6F 0 2C 16 4 -- 2018 8086  --  --  --  Other system peripheral
+  70 0 2C 17 0 -- 2018 8086  --  --  --  Other system peripheral
+=>71 0 2D 00 0 00 8111 10B5 8111 BB  --  PLX PCIe <==> PCI bridge
+  72 0 2E 04 0 -- 9056 10B5 9056 BA  --  PLX PCI <==> Local bus bridge
+  73 0 2F 00 0 00 7011 10EE  --  --  --  Processing accelerator
+  74 0 30 00 0 00 A804 144D  --  --  --  Samsung NVMe endpoint
+
+PLX Console Monitor (64-bit), v8.23 [Apr 14 2023]
+Copyright (c) Broadcom, Inc.
+
+>eep
+
+   ------ 8111 EEPROM Header ------
+ Signature    : 5A [Valid]
+ Load Regs    : Yes
+ Load Sh Mem  : Yes
+ Registers    : 18 bytes (3 regs)
+
+   #    Port     Offset     Value
+ -----------------------------------
+   0     --       0034     00000050
+   1     --       0048     00000002
+   2     --       0024     00000001
+
+
+   --- Shared Memory (4 bytes) ---
+ 000: 0010 0020
+
+
+>
+
+
+lspci now shows the "Prefetchable memory behind bridge" as having 64-bit addresses (and disabled):
+[mr_halfword@skylake-alma ~]$  lspci -vvv -d 10b5:8111
+2d:00.0 PCI bridge: PLX Technology, Inc. PEX 8111 PCI Express-to-PCI Bridge (rev 21) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR+ FastB2B- DisINTx-
+	Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+	Latency: 0, Cache Line Size: 32 bytes
+	Interrupt: pin A routed to IRQ 89
+	NUMA node: 0
+	IOMMU group: 85
+	Region 0: Memory at 38ffffe00000 (64-bit, prefetchable) [size=64K]
+	Bus: primary=2d, secondary=2e, subordinate=2e, sec-latency=64
+	I/O behind bridge: 0000f000-00000fff [disabled]
+	Memory behind bridge: 97900000-979fffff [size=1M]
+	Prefetchable memory behind bridge: 00000000fff00000-00000000000fffff [disabled]
+	Secondary status: 66MHz- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ <SERR- <PERR-
+	BridgeCtl: Parity+ SERR+ NoISA- VGA- VGA16- MAbort- >Reset- FastB2B-
+		PriDiscTmr- SecDiscTmr- DiscTmrStat- DiscTmrSERREn-
+	Capabilities: <access denied>
+
+Whereas before the change "Prefetchable memory behind bridge" had 32-bit addresses:
+2d:00.0 PCI bridge [0604]: PLX Technology, Inc. PEX 8111 PCI Express-to-PCI Bridge [10b5:8111] (rev 21) (prog-if 00 [Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr+ Stepping- SERR+ FastB2B- DisINTx-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+        Latency: 0, Cache Line Size: 32 bytes
+        Interrupt: pin A routed to IRQ 255
+        NUMA node: 0
+        IOMMU group: 85
+        Region 0: Memory at 38ffffe00000 (64-bit, prefetchable) [size=64K]
+        Bus: primary=2d, secondary=2e, subordinate=2e, sec-latency=64
+        I/O behind bridge: 0000f000-00000fff [disabled]
+        Memory behind bridge: 97900000-979fffff [size=1M]
+        Prefetchable memory behind bridge: fff00000-000fffff [disabled]
 
