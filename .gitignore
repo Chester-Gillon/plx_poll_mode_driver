@@ -1,4 +1,5 @@
 Debug/
+Release/
 Debug_aarch32/
 Debug_aarch64/
 ipch/
